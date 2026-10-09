@@ -1,0 +1,7 @@
+playwright==1.42.0
+beautifulsoup4==4.12.3
+spacy==3.7.4
+sentence-transformers==2.5.1
+transformers==4.38.2
+torch==2.2.1
+supabase==2.3.4
