@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ShareSheet: UIViewControllerRepresentable {
     var activityItems: [Any]
