@@ -244,7 +244,7 @@ actor SupabaseService: VolunteerDataProviding {
         return authSession.userID
     }
 
-    private enum AuthMode { case user, anonymous }
+    enum AuthMode { case user, anonymous }
 
     func send(_ endpoint: Endpoint, auth: AuthMode = .user) async throws -> Data {
         let bearer: String
