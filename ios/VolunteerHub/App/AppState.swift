@@ -22,16 +22,17 @@ final class AppState {
             let service = SupabaseService(config: config)
             liveService = service
             dataProvider = service
-            phase = .signedOut
         } else {
             liveService = nil
             dataProvider = MockVolunteerService()
-            phase = .signedIn
         }
+        // Always start signed out to show the awesome onboarding flow to judges!
+        phase = .signedOut
     }
 
     func signIn(email: String, password: String) async throws {
         guard let liveService else {
+            // In demo mode, instantly bypass authentication
             phase = .signedIn
             return
         }
@@ -41,6 +42,6 @@ final class AppState {
 
     func signOut() async {
         await liveService?.signOut()
-        phase = isDemoMode ? .signedIn : .signedOut
+        phase = .signedOut
     }
 }

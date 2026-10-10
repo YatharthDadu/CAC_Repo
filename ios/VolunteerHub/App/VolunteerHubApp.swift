@@ -20,7 +20,7 @@ struct RootView: View {
         Group {
             switch appState.phase {
             case .signedOut:
-                SignInView()
+                OnboardingCoordinator()
             case .signedIn:
                 RootTabView(service: appState.dataProvider)
             }
