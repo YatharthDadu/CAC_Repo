@@ -31,9 +31,7 @@ struct CheckInCoordinatorView: View {
             .navigationTitle("Check In")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                if case .scanning = viewModel.phase {
-                    // Empty, no actions needed
-                } else {
+                if viewModel.phase != .scanning {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Cancel") {
                             viewModel.reset()
@@ -84,7 +82,7 @@ struct CheckInCoordinatorView: View {
         VStack(spacing: 32) {
             Image(systemName: "mappin.and.ellipse")
                 .font(.system(size: 64))
-                .foregroundStyle(.accent)
+                .foregroundStyle(Color.accentColor)
             
             VStack(spacing: 8) {
                 Text(event.title)

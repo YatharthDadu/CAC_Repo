@@ -154,10 +154,10 @@ struct UserDashboardView: View {
         // Use realistic dummy data or actual log histories here.
         // For demonstration, map the upcoming events to mock verified logs.
         let events = viewModel.upcomingEvents
-        let profile = viewModel.profile ?? UserProfile(id: UUID(), fullName: viewModel.greetingName, schoolName: "High School", district: "TX-04", intendedMajor: "CS", goalHours: 30)
+        let profile = viewModel.profile ?? UserProfile(id: UUID(), fullName: viewModel.greetingName, intendedMajor: "CS", targetClub: "NHS", goalHours: 30, clubDeadlines: [], interestEmbedding: nil)
         
         let transcriptEvents: [(VolunteerEvent, AttendanceLog)] = events.map { event in
-            (event, AttendanceLog(id: UUID(), eventId: event.id, userId: profile.id, checkInTime: Date(), checkOutTime: Date(), awardedHours: event.estimatedHours, supervisorName: "Coordinator", supervisorEmail: nil, supervisorPhone: nil, signatureUrl: nil, studentTaskNotes: nil, aiImpactBlurb: nil, status: "verified"))
+            (event, AttendanceLog(id: UUID(), eventId: event.id, userId: profile.id, checkInTime: Date(), checkOutTime: Date(), awardedHours: 0.0, supervisorName: "Coordinator", supervisorEmail: nil, supervisorPhone: nil, signatureUrl: nil, studentTaskNotes: nil, aiImpactBlurb: nil, status: "verified"))
         }
         
         let data = PDFTranscriptGenerator.TranscriptData(
