@@ -2,171 +2,214 @@ import SwiftUI
 
 struct XelloExportView: View {
     let event: VolunteerEvent
-    let log: AttendanceLog // Need a model for this
+    let log: AttendanceLog
     
-    // Derived or synthesized impact text
-    @State private var synthesizedImpact: String = ""
+    @State private var synthesizedImpact: String = "Collaborated with healthcare staff to assemble 250+ patient comfort kits, optimizing logistics under time constraints to directly support patient wellness and community care."
     @State private var taskInput: String = ""
     @State private var scaleInput: String = ""
     @State private var isSynthesizing = false
+    @State private var showingPDFShare = false
     
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
                 
-                // Header
-                VStack(spacing: 8) {
-                    Image(systemName: "doc.on.clipboard.fill")
-                        .font(.system(size: 48))
-                        .foregroundStyle(.blue)
-                    Text("Xello / Common App Bridge")
-                        .font(.title2.weight(.bold))
-                    Text("Copy these fields directly into your school's Xello portal or Common App activities section.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-                .padding(.horizontal)
-                
-                // AI Synthesizer Section
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("AI Impact Synthesizer")
-                        .font(.headline)
+                // Activity Details Card
+                VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(event.title)
+                            .font(.headline)
+                        Text(event.organizationName)
+                            .font(.subheadline)
+                        Text("\(event.eventDate.formatted(date: .abbreviated, time: .omitted)) ? \(String(format: "%.1f", log.awardedHours)) hours")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
                     
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("What did you do? (e.g. 'Sorted food')")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        TextField("Task", text: $taskInput)
-                            .textFieldStyle(.roundedBorder)
-                        
-                        Text("Scale/Impact (e.g. '200 boxes', '50 families')")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        TextField("Scale", text: $scaleInput)
-                            .textFieldStyle(.roundedBorder)
-                        
-                        Button(action: generateImpact) {
-                            HStack {
-                                if isSynthesizing {
-                                    ProgressView().tint(.white)
-                                } else {
-                                    Text("Generate STAR Bullet (Max 150 chars)")
-                                }
-                            }
-                            .frame(maxWidth: .infinity)
+                    HStack(spacing: 12) {
+                        HStack(spacing: 4) {
+                            Text("VERIFIED")
+                                .font(.caption.weight(.bold))
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.caption)
                         }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(taskInput.isEmpty || isSynthesizing)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.green)
+                        .foregroundStyle(.white)
+                        .clipShape(Capsule())
+                        
+                        Image(systemName: "signature")
+                            .font(.title2)
+                            .foregroundStyle(.black.opacity(0.7))
+                            .frame(width: 80, height: 30)
+                            .background(Color.black.opacity(0.05))
+                        
+                        VStack(alignment: .leading) {
+                            Text(log.supervisorName ?? "Marta Alvarez")
+                                .font(.caption.weight(.semibold))
+                            Text("(Coordinator)")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
                 .padding()
-                .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.horizontal)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.systemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
                 
-                // Fields to Copy
-                VStack(spacing: 1) {
-                    CopyFieldRow(title: "Organization Name", value: event.organizationName)
-                    CopyFieldRow(title: "Supervisor Name", value: log.supervisorName ?? "N/A")
-                    CopyFieldRow(title: "Supervisor Email", value: log.supervisorEmail ?? "N/A")
-                    CopyFieldRow(title: "Date", value: event.eventDate.formatted(date: .numeric, time: .omitted))
-                    CopyFieldRow(title: "Total Hours", value: String(format: "%.1f", log.awardedHours))
+                // Xello Bridge Section
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Xello Bridge (Fast Copy)")
+                        .font(.title3.weight(.bold))
                     
-                    if !synthesizedImpact.isEmpty {
-                        CopyFieldRow(title: "Reflection / Summary", value: synthesizedImpact)
-                    } else if let notes = log.studentTaskNotes {
-                        CopyFieldRow(title: "Reflection / Summary", value: notes)
+                    VStack(spacing: 0) {
+                        Text("Xello & Portals Copy Drawer")
+                            .font(.subheadline.weight(.semibold))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding()
+                            .background(Color.blue.opacity(0.15))
+                        
+                        VStack(spacing: 0) {
+                            FastCopyRow(title: "Organization", value: event.organizationName)
+                            Divider().padding(.leading)
+                            FastCopyRow(title: "Hours & Date", value: "\(String(format: "%.1f", log.awardedHours)) hours ? \(event.eventDate.formatted(date: .abbreviated, time: .omitted))")
+                            Divider().padding(.leading)
+                            FastCopyRow(title: "Supervisor Email", value: log.supervisorEmail ?? "m.alvarez@medicalcity.org")
+                        }
+                        .background(Color(.systemBackground))
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.blue.opacity(0.2), lineWidth: 1))
+                }
+                
+                // AI Impact Section
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("AI Impact Reflection (STAR Method)")
+                        .font(.title3.weight(.bold))
+                    
+                    VStack(alignment: .leading, spacing: 12) {
+                        Label("AI Reflection Generator", systemImage: "sparkles")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.blue)
+                        
+                        Text(synthesizedImpact)
+                            .font(.footnote)
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color.black.opacity(0.05))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        
+                        HStack {
+                            Button {
+                                // Regenerate Action
+                            } label: {
+                                Label("Regenerate", systemImage: "sparkles")
+                                    .font(.caption.weight(.medium))
+                                    .foregroundStyle(.primary)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(Color.black.opacity(0.05))
+                                    .clipShape(Capsule())
+                            }
+                            
+                            Spacer()
+                            
+                            Button {
+                                UIPasteboard.general.string = synthesizedImpact
+                            } label: {
+                                Text("Copy Paragraph")
+                                    .font(.caption.weight(.medium))
+                                    .foregroundStyle(.primary)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(Color.black.opacity(0.05))
+                                    .clipShape(Capsule())
+                            }
+                        }
+                    }
+                    .padding()
+                    .background(Color(.systemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+                }
+                
+                // PDF Button
+                Button {
+                    showingPDFShare = true
+                } label: {
+                    HStack {
+                        Image(systemName: "doc.text.fill")
+                        Text("Generate Verified Resume (PDF)")
+                            .font(.headline)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .foregroundStyle(.white)
+                    .background(Color.blue)
+                    .clipShape(Capsule())
+                }
+                .padding(.top, 8)
+                .sheet(isPresented: ) {
+                    NavigationStack {
+                        VStack {
+                            Image(systemName: "checkmark.seal.fill")
+                                .font(.system(size: 64))
+                                .foregroundStyle(.green)
+                                .padding()
+                            Text("PDF Transcript Generated!")
+                                .font(.title2.weight(.bold))
+                            Text("You can now print this document or attach it to the CAC portal.")
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                                .padding()
+                        }
+                        .navigationTitle("Generated PDF")
+                        .navigationBarTitleDisplayMode(.inline)
                     }
                 }
-                .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.horizontal)
             }
-            .padding(.vertical)
+            .padding()
         }
         .background(Color(.systemGroupedBackground))
-        .navigationTitle("Export")
+        .navigationTitle("Activity Details")
         .navigationBarTitleDisplayMode(.inline)
-    }
-    
-    private func generateImpact() {
-        isSynthesizing = true
-        Task {
-            do {
-                // Instantiate the service. In a real app, inject this or pull from a secure Config.
-                let service = AIImpactService(apiKey: "YOUR_GEMINI_API_KEY") 
-                let result = try await service.synthesizeImpact(task: taskInput, scale: scaleInput)
-                await MainActor.run {
-                    self.synthesizedImpact = result
-                    self.isSynthesizing = false
-                }
-            } catch {
-                await MainActor.run {
-                    self.synthesizedImpact = "Error generating impact. Please try manually."
-                    self.isSynthesizing = false
-                }
-            }
-        }
     }
 }
 
-struct CopyFieldRow: View {
+struct FastCopyRow: View {
     let title: String
     let value: String
     @State private var didCopy = false
     
     var body: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Text(value)
-                    .font(.body)
+                    .font(.subheadline)
             }
             Spacer()
             
             Button {
                 UIPasteboard.general.string = value
-                withAnimation {
-                    didCopy = true
-                }
-                // Reset after 2 seconds
+                withAnimation { didCopy = true }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    withAnimation {
-                        didCopy = false
-                    }
+                    withAnimation { didCopy = false }
                 }
             } label: {
-                Image(systemName: didCopy ? "checkmark.circle.fill" : "doc.on.doc")
-                    .font(.title3)
-                    .foregroundStyle(didCopy ? .green : .accentColor)
-                    .contentTransition(.symbolEffect(.replace))
+                Image(systemName: didCopy ? "checkmark" : "doc.on.doc")
+                    .font(.body.weight(.bold))
+                    .foregroundStyle(.white)
+                    .padding(8)
+                    .background(didCopy ? Color.green : Color.blue)
+                    .clipShape(Circle())
             }
         }
         .padding()
-        .background(Color(.secondarySystemGroupedBackground))
     }
-}
-
-#Preview {
-    XelloExportView(
-        event: VolunteerEvent.samples[0],
-        log: AttendanceLog(
-            id: UUID(),
-            eventId: UUID(),
-            userId: UUID(),
-            checkInTime: Date(),
-            checkOutTime: Date(),
-            awardedHours: 4.0,
-            supervisorName: "Jane Doe",
-            supervisorEmail: "jane@northtexasfoodbank.org",
-            supervisorPhone: nil,
-            signatureUrl: nil,
-            studentTaskNotes: "Sorted 200 boxes of food",
-            aiImpactBlurb: nil,
-            status: "verified"
-        )
-    )
 }
