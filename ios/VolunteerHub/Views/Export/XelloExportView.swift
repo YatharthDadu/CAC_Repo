@@ -152,7 +152,7 @@ struct XelloExportView: View {
                     .clipShape(Capsule())
                 }
                 .padding(.top, 8)
-                .sheet(isPresented: ) {
+                .sheet(isPresented: $showingPDFShare) {
                     NavigationStack {
                         VStack {
                             Image(systemName: "checkmark.seal.fill")
