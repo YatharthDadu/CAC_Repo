@@ -35,7 +35,7 @@ struct UpcomingEventRow: View {
 
             NavigationLink(destination: XelloExportView(
                 event: event,
-                log: AttendanceLog(id: UUID(), eventId: event.id, userId: UUID(), checkInTime: Date(), checkOutTime: Date(), awardedHours: event.estimatedHours, supervisorName: nil, supervisorEmail: nil, supervisorPhone: nil, signatureUrl: nil, studentTaskNotes: nil, aiImpactBlurb: nil, status: "pending")
+                log: AttendanceLog(id: UUID(), eventId: event.id, userId: UUID(), checkInTime: Date(), checkOutTime: Date(), awardedHours: 0.0, supervisorName: nil, supervisorEmail: nil, supervisorPhone: nil, signatureUrl: nil, studentTaskNotes: nil, aiImpactBlurb: nil, status: "pending")
             )) {
                 Image(systemName: "square.and.arrow.up")
                     .foregroundStyle(.blue)
