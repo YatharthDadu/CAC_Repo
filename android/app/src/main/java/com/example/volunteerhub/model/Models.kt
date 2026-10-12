@@ -10,7 +10,8 @@ data class VolunteerEvent(
     val eventDate: String,
     val similarity: Double? = null,
     val description: String = "",
-    val qrSeed: String = ""
+    val qrSeed: String = "",
+    val category: String = "General"
 )
 
 data class UserProfile(

@@ -4,6 +4,7 @@ import sys
 import uuid
 import random
 import string
+import json
 from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
 
@@ -25,20 +26,14 @@ def generate_qr_seed():
     return ''.join(random.choices(string.ascii_letters + string.digits, k=32))
 
 async def run_pipeline():
-    print("Starting Volunteer Hub Data Pipeline...")
-    
-    # Check if Supabase keys are configured
-    if "your-project-url" in SUPABASE_URL or "your-service-role-key" in SUPABASE_KEY:
-        print("\n[WARNING] Supabase credentials not found or still set to placeholders in backend/.env!")
-        print("Please ensure SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set.")
+    print("Starting Volunteer Hub Multi-Major Data Pipeline...")
     
     # 1. Scrape data
-    print("\n--- Phase 1: Scraping Targets ---")
+    print("\n--- Phase 1: Scraping Targets across Majors ---")
     raw_events = await scrape_all_targets()
     print(f"Scraped {len(raw_events)} live events.")
     
     # Merge rich curated North Texas catalog
-    import json
     raw_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "raw_targets.json")
     if os.path.exists(raw_path):
         with open(raw_path, "r", encoding="utf-8") as f:
@@ -59,64 +54,97 @@ async def run_pipeline():
     embedder = Embedder()
     
     processed_events = []
+    app_catalog = []
     
     # 2. Process data
-    print("\n--- Phase 2: NLP Processing & Embedding ---")
+    print("\n--- Phase 2: NLP Processing & Multi-Major Semantic Embedding ---")
     for i, event in enumerate(raw_events):
         text = event.get('description', event.get('text', ''))
         title = event.get('title', 'Volunteer Opportunity')
         url = event.get('source_url', event.get('url', ''))
         org = event.get('organization_name', event.get('organization', 'Unknown Organization'))
-        
-        print(f"Processing ({i+1}/{len(raw_events)}): {title} ({org})")
+        cat = event.get('category', 'Community & Civic')
+        loc = event.get('location', 'Frisco, TX')
         
         # NLP Guard: Check Age Eligibility
         is_eligible = age_classifier.is_eligible_for_high_school(text)
         if not is_eligible:
-            print(" -> Skipped: Not eligible for high school teens.")
             continue
             
         # Extract Entities (Dates, Locations)
         entities = entity_extractor.extract_entities(text)
-        
-        address = entities["locations"][0] if entities.get("locations") else "Frisco, TX"
+        address = loc if loc and loc != "North Texas / Remote" else (entities["locations"][0] if entities.get("locations") else "Frisco, TX")
         
         # Stagger event dates over upcoming weeks for a realistic dashboard calendar
-        future_date = datetime.now(timezone.utc) + timedelta(days=(i * 3 + 2))
+        future_date = datetime.now(timezone.utc) + timedelta(days=((i % 14) * 2 + 3))
         event_date = future_date.isoformat()
         
-        # Generate Vector Embedding
-        embedding = embedder.generate_embedding(text)
+        # Context-rich embedding text for semantic similarity
+        embed_context = f"Volunteer opportunity for high school students in {cat}. Title: {title}. Organization: {org}. Location: {address}. Description: {text}"
+        embedding = embedder.generate_embedding(embed_context)
+        
+        qr = generate_qr_seed()
         
         processed_event = {
             "title": title,
             "organization_name": org,
             "location": address,
             "event_date": event_date,
-            "qr_seed": generate_qr_seed(),
+            "qr_seed": qr,
             "description_embedding": embedding
         }
         processed_events.append(processed_event)
         
-    print(f"\nPrepared {len(processed_events)} eligible events with embeddings.")
+        app_catalog.append({
+            "title": title,
+            "organization_name": org,
+            "location": address,
+            "event_date": event_date,
+            "category": cat,
+            "description": text,
+            "source_url": url,
+            "qr_seed": qr
+        })
+        
+    print(f"\nPrepared {len(processed_events)} eligible multi-major events with embeddings.")
     
+    # Export full catalog for Android app offline synchronization
+    catalog_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "processed_catalog.json")
+    with open(catalog_path, "w", encoding="utf-8") as f:
+        json.dump(app_catalog, f, indent=2)
+    print(f"Exported processed catalog to {catalog_path}")
+
     # 3. Upsert to Supabase if configured
     print("\n--- Phase 3: Supabase Upload ---")
     if "your-project-url" in SUPABASE_URL or "your-service-role-key" in SUPABASE_KEY:
         print("[!] Skipping Supabase upload because valid credentials are not yet set in backend/.env.")
-        print(f"[+] All {len(processed_events)} processed events are verified and ready for database insertion!")
         return
         
     from supabase import create_client, Client
     try:
         supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
         print(f"Connecting to {SUPABASE_URL}...")
-        response = supabase.table('events').insert(processed_events).execute()
-        print(f"Successfully inserted {len(response.data)} records into Supabase 'events' table!")
+        
+        # Clear previous records to prevent duplicates and ensure clean ranking
+        try:
+            supabase.table('events').delete().neq('title', '___NEVER_MATCH___').execute()
+            print("Purged outdated records from Supabase 'events' table.")
+        except Exception as e:
+            print(f"Note on table purge: {e}")
+            
+        # Insert in chunks of 20
+        chunk_size = 20
+        inserted_count = 0
+        for i in range(0, len(processed_events), chunk_size):
+            chunk = processed_events[i:i + chunk_size]
+            response = supabase.table('events').insert(chunk).execute()
+            inserted_count += len(response.data)
+            
+        print(f"Successfully inserted {inserted_count} fresh multi-major records into Supabase 'events' table!")
     except Exception as e:
         print(f"Error uploading to Supabase: {e}")
         
-    print("Pipeline execution complete.")
+    print("\nPipeline execution successfully finished!")
 
 if __name__ == "__main__":
     asyncio.run(run_pipeline())

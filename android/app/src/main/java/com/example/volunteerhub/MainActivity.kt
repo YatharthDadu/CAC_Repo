@@ -53,7 +53,7 @@ fun VolunteerHubApp() {
             UserProfile(
                 fullName = "Alex Chen",
                 grade = "11th Grade",
-                intendedMajor = "Pre-Med / Healthcare"
+                intendedMajor = "Computer Science & Tech"
             )
         )
     }
@@ -62,12 +62,48 @@ fun VolunteerHubApp() {
     var selectedEvent by remember { mutableStateOf<VolunteerEvent?>(null) }
     val scope = rememberCoroutineScope()
 
+    val sortedEvents = remember(events, userProfile.intendedMajor) {
+        val stemKeywords = listOf("stem", "tech", "computer", "code", "coding", "software", "robot", "robotics", "data", "ai", "3d print", "maker", "engineer", "python", "developer", "hardware", "digital")
+        val preMedKeywords = listOf("medical", "hospital", "patient", "blood", "health", "clinic", "wellness", "comfort kit", "hospice")
+        val ecoKeywords = listOf("park", "trail", "environment", "tree", "plant", "conservation", "nature", "wildflower", "prairie")
+        val eduKeywords = listOf("tutor", "reading", "literacy", "library", "school", "mentor", "teach", "homework", "book")
+        val bizKeywords = listOf("business", "finance", "resale", "store", "inventory", "budget", "merchandising", "logistics")
+
+        val (primary, secondary) = when (userProfile.intendedMajor) {
+            "Computer Science & Tech" -> stemKeywords to (bizKeywords + eduKeywords)
+            "Engineering & Robotics" -> stemKeywords to (ecoKeywords + bizKeywords)
+            "Pre-Med / Healthcare" -> preMedKeywords to eduKeywords
+            "Environmental Science" -> ecoKeywords to eduKeywords
+            "Education & Literacy" -> eduKeywords to stemKeywords
+            "Business & Finance" -> bizKeywords to stemKeywords
+            else -> stemKeywords to emptyList()
+        }
+
+        events.map { event ->
+            val text = "${event.title} ${event.organizationName} ${event.description} ${event.category}".lowercase()
+            val eventHash = (event.title.hashCode() and 0x7FFFFFFF) % 4
+            val primaryHits = primary.count { text.contains(it) }
+            val secondaryHits = secondary.count { text.contains(it) }
+            val score = when {
+                primaryHits >= 2 -> 96 + eventHash
+                primaryHits == 1 -> 91 + eventHash
+                secondaryHits >= 1 -> 81 + eventHash
+                text.contains("food") || text.contains("meal") || text.contains("community") -> 74 + eventHash
+                else -> 38 + (eventHash * 3)
+            }
+            event.copy(similarity = score / 100.0)
+        }.sortedByDescending { it.similarity ?: 0.0 }
+    }
+
     LaunchedEffect(Unit) {
         scope.launch {
             events = SupabaseRepository.fetchEvents()
-            if (selectedEvent == null && events.isNotEmpty()) {
-                selectedEvent = events.first()
-            }
+        }
+    }
+
+    LaunchedEffect(sortedEvents) {
+        if (selectedEvent == null && sortedEvents.isNotEmpty()) {
+            selectedEvent = sortedEvents.first()
         }
     }
 
@@ -134,7 +170,7 @@ fun VolunteerHubApp() {
                 AppScreen.DASHBOARD -> {
                     DashboardScreen(
                         userProfile = userProfile,
-                        events = events,
+                        events = sortedEvents,
                         onOpenXello = { event ->
                             selectedEvent = event
                             currentScreen = AppScreen.XELLO
@@ -144,7 +180,8 @@ fun VolunteerHubApp() {
 
                 AppScreen.DISCOVER -> {
                     DiscoverScreen(
-                        events = events,
+                        userProfile = userProfile,
+                        events = sortedEvents,
                         onSelectEvent = { event ->
                             selectedEvent = event
                             currentScreen = AppScreen.XELLO

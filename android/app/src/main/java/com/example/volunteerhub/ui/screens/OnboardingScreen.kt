@@ -36,7 +36,7 @@ fun OnboardingScreen(
     var password by remember { mutableStateOf("") }
     var fullName by remember { mutableStateOf("") }
     var grade by remember { mutableStateOf("11th Grade") }
-    var major by remember { mutableStateOf("Pre-Med / Healthcare") }
+    var major by remember { mutableStateOf("Computer Science & Tech") }
 
     Surface(
         modifier = Modifier.fillMaxSize(),

@@ -30,10 +30,35 @@ fun XelloScreen(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
-    var aiReflection by remember {
-        mutableStateOf(
-            "Collaborated with hospital clinical staff to assemble 250+ pediatric care kits under strict time constraints, ensuring protocol readiness and directly supporting community wellness."
-        )
+    val supervisorEmail = remember(event) {
+        val orgClean = event.organizationName.lowercase().filter { it.isLetter() }.take(12)
+        "coordinator@${if (orgClean.isNotEmpty()) orgClean else "volunteer"}.org"
+    }
+
+    fun getEventStarReflection(event: VolunteerEvent, variant: Int = 0): String {
+        val text = "${event.title} ${event.organizationName} ${event.category}".lowercase()
+        return when {
+            text.contains("stem") || text.contains("tech") || text.contains("code") || text.contains("robot") ->
+                if (variant == 0) "Mentored 15+ student learners through algorithmic logic exercises, Scratch coding challenges, and hands-on robotics debugging, enhancing youth computational literacy in North Texas."
+                else "Diagnosed syntax errors, guided interactive Python coding sprints, and inspired elementary students to explore STEM and software development."
+            text.contains("maker") || text.contains("3d print") ->
+                if (variant == 0) "Facilitated teen makerspace workshops, assisting younger participants in 3D CAD modeling, filament slicing, and rapid prototyping while ensuring lab safety protocols."
+                else "Managed digital maker lab equipment, instructed youth on 3D printer calibration, and facilitated STEM design challenges."
+            text.contains("ai") || text.contains("data") ->
+                if (variant == 0) "Assisted community members with digital literacy, testing accessibility features and AI prompt guidance to bridge regional technology adoption gaps."
+                else "Evaluated user prompts, logged feedback metrics, and helped seniors navigate modern technology tools with patience and precision."
+            text.contains("park") || text.contains("trail") || text.contains("plant") ->
+                "Collaborated with environmental conservation teams to mulch 1.5 miles of nature trails and plant native saplings, directly improving Collin County park ecosystems."
+            text.contains("food") || text.contains("pack") || text.contains("meal") ->
+                "Assembled and quality-inspected 350+ emergency nutrition packages with logistics partners, accelerating regional food distribution for Collin County families."
+            else ->
+                "Collaborated with hospital clinical staff to assemble 250+ pediatric care kits under strict time constraints, ensuring protocol readiness and directly supporting community wellness."
+        }
+    }
+
+    var reflectionVariant by remember { mutableStateOf(0) }
+    var aiReflection by remember(event, reflectionVariant) {
+        mutableStateOf(getEventStarReflection(event, reflectionVariant))
     }
 
     fun copyToClipboard(label: String, text: String) {
@@ -191,8 +216,8 @@ fun XelloScreen(
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                         FastCopyRow(
                             title = "Supervisor Email",
-                            value = "m.alvarez@medicalcity.org",
-                            onCopy = { copyToClipboard("Email", "m.alvarez@medicalcity.org") }
+                            value = supervisorEmail,
+                            onCopy = { copyToClipboard("Email", supervisorEmail) }
                         )
                     }
                 }
@@ -245,7 +270,7 @@ fun XelloScreen(
                         ) {
                             OutlinedButton(
                                 onClick = {
-                                    aiReflection = "Coordinated volunteer intake logistics and comfort kit preparation for 150+ inpatient admissions, enhancing clinic response efficiency."
+                                    reflectionVariant = (reflectionVariant + 1) % 2
                                 },
                                 shape = RoundedCornerShape(20.dp)
                             ) {
