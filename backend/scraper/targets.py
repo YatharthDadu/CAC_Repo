@@ -124,26 +124,53 @@ async def extract_fmsc(page: Page) -> list[dict]:
     return events
 
 async def extract_idealist(page: Page) -> list[dict]:
-    """7. Idealist - Keyword search injection"""
-    # Construct URL with Location "North Texas/Dallas", Type "Volunteer", Keyword "Teen/Youth"
-    url = "https://www.idealist.org/en/volunteer?q=Teen%20Youth&loc=Dallas%2C%20TX"
-    await page.goto(url, wait_until="networkidle")
-    html = await page.content()
-    soup = BeautifulSoup(html, "html.parser")
+    """7. VolunteerMatch & Idealist - Live North Texas Volunteer Feed"""
     events = []
-    
-    for card in soup.find_all("div", attrs={"data-testid": "search-result"}):
-        title = card.find("h3").get_text(strip=True) if card.find("h3") else "Idealist Volunteer"
-        org = card.find("a", class_="org-link").get_text(strip=True) if card.find("a", class_="org-link") else "Idealist Organization"
-        desc = card.get_text(separator=" ", strip=True)
-        
-        events.append({
-            "organization_name": org,
-            "title": title,
-            "description": desc,
-            "source_url": url
-        })
-    return events
+    urls = [
+        "https://www.volunteermatch.org/search/index.jsp?l=Dallas%2C+TX",
+        "https://www.idealist.org/en/volunteer-in-frisco-tx"
+    ]
+    for url in urls:
+        try:
+            await page.goto(url, wait_until="networkidle", timeout=20000)
+            html = await page.content()
+            soup = BeautifulSoup(html, "html.parser")
+            for a in soup.find_all("a", href=True):
+                if "/volunteer-opportunity/" in a["href"]:
+                    h = a.find(["h3", "h4", "h2"])
+                    if h:
+                        title = h.get_text(strip=True)
+                        card = a.find_parent("div")
+                        desc = card.get_text(separator=" ", strip=True) if card else title
+                        full_url = "https://www.idealist.org" + a["href"] if a["href"].startswith("/") else a["href"]
+                        # Extract org name if available
+                        org = "Community Partner"
+                        if "especially needed" in desc.lower():
+                            org = "Especially Needed (Frisco)"
+                        elif "catholic charities" in desc.lower():
+                            org = "Catholic Charities Dallas"
+                        elif "salvation army" in desc.lower():
+                            org = "The Salvation Army North Texas"
+                        elif "food bank" in desc.lower():
+                            org = "Midwest Food Bank - Texas"
+                        
+                        events.append({
+                            "organization_name": org,
+                            "title": title,
+                            "description": desc,
+                            "source_url": full_url
+                        })
+        except Exception as e:
+            logger.warning(f"Error scraping {url}: {e}")
+            
+    # Deduplicate by title
+    seen = set()
+    deduped = []
+    for e in events:
+        if e["title"] not in seen:
+            seen.add(e["title"])
+            deduped.append(e)
+    return deduped
 
 async def scrape_all_targets():
     """Master orchestrator to scrape all targets sequentially."""
