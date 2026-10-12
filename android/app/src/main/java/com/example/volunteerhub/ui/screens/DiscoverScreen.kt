@@ -19,11 +19,13 @@ import com.example.volunteerhub.model.VolunteerEvent
 fun DiscoverScreen(
     userProfile: UserProfile,
     events: List<VolunteerEvent>,
-    onSelectEvent: (VolunteerEvent) -> Unit
+    rsvpdEventIds: Set<String>,
+    onSelectEvent: (VolunteerEvent) -> Unit,
+    onToggleRsvp: (VolunteerEvent) -> Unit
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     var selectedFilter by remember { mutableStateOf("All") }
     val filters = listOf("All", "Top Matches", "STEM & Tech", "Healthcare", "Environment", "Community")
-    val rsvpdEvents = remember { mutableStateListOf<String>() }
 
     // Keyword sets for semantic major matching
     val stemKeywords = remember {
@@ -228,7 +230,7 @@ fun DiscoverScreen(
         }
 
         items(displayedEvents) { event ->
-            val isRsvpd = rsvpdEvents.contains(event.id)
+            val isRsvpd = rsvpdEventIds.contains(event.id)
             val score = ((event.similarity ?: 0.95) * 100).toInt()
             val categoryTag = getCategoryTag(event)
 
@@ -236,6 +238,7 @@ fun DiscoverScreen(
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                border = if (isRsvpd) androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFF34C759).copy(alpha = 0.5f)) else null,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(18.dp)) {
@@ -294,16 +297,36 @@ fun DiscoverScreen(
                             fontWeight = FontWeight.SemiBold
                         )
 
-                        Surface(
-                            shape = RoundedCornerShape(6.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = categoryTag,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                            )
+                            if (isRsvpd) {
+                                Surface(
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = Color(0xFF34C759).copy(alpha = 0.15f)
+                                ) {
+                                    Text(
+                                        text = "✓ NHS +4h",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF34C759),
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
+
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                            ) {
+                                Text(
+                                    text = categoryTag,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                )
+                            }
                         }
                     }
 
@@ -329,25 +352,37 @@ fun DiscoverScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                             OutlinedButton(
                                 onClick = { onSelectEvent(event) },
-                                shape = RoundedCornerShape(12.dp)
+                                shape = RoundedCornerShape(12.dp),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                             ) {
-                                Text("Details")
+                                Text("Details", fontSize = 13.sp, maxLines = 1)
                             }
 
                             Button(
                                 onClick = {
-                                    if (isRsvpd) rsvpdEvents.remove(event.id) else rsvpdEvents.add(event.id)
+                                    onToggleRsvp(event)
+                                    val msg = if (!isRsvpd) {
+                                        "✓ RSVP Confirmed! +4.0 hrs added to National Honor Society."
+                                    } else {
+                                        "RSVP removed. National Honor Society hours updated."
+                                    }
+                                    android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show()
                                 },
                                 shape = RoundedCornerShape(12.dp),
-                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = if (isRsvpd) Color(0xFF34C759) else Color(0xFF007AFF)
                                 )
                             ) {
-                                Text(if (isRsvpd) "✓ RSVP'd" else "RSVP")
+                                Text(
+                                    text = if (isRsvpd) "✓ RSVP'd" else "RSVP",
+                                    fontSize = 13.sp,
+                                    maxLines = 1,
+                                    softWrap = false
+                                )
                             }
                         }
                     }

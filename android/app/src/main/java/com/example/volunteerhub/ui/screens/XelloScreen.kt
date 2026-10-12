@@ -24,6 +24,8 @@ import com.example.volunteerhub.model.VolunteerEvent
 @Composable
 fun XelloScreen(
     event: VolunteerEvent,
+    isRsvpd: Boolean = false,
+    onToggleRsvp: () -> Unit = {},
     onBack: () -> Unit,
     onGeneratePdf: () -> Unit
 ) {
@@ -169,6 +171,45 @@ fun XelloScreen(
                                 fontSize = 11.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = if (isRsvpd) "✓ RSVP Active" else "Registration Open",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isRsvpd) Color(0xFF34C759) else Color(0xFF007AFF)
+                            )
+                            Text(
+                                text = "Counts +4.0 hrs toward NHS goal",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        Button(
+                            onClick = {
+                                onToggleRsvp()
+                                val msg = if (!isRsvpd) "✓ RSVP Confirmed! +4.0 hrs added to National Honor Society." else "RSVP cancelled. Hours updated."
+                                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isRsvpd) Color(0xFF34C759) else Color(0xFF007AFF)
+                            ),
+                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
+                        ) {
+                            Text(if (isRsvpd) "✓ RSVP'd" else "RSVP Now", fontSize = 13.sp)
                         }
                     }
                 }

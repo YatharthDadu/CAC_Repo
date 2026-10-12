@@ -53,23 +53,40 @@ fun VolunteerHubApp() {
             UserProfile(
                 fullName = "Alex Chen",
                 grade = "11th Grade",
-                intendedMajor = "Computer Science & Tech"
+                intendedMajor = "Computer Science & Tech",
+                targetClub = "National Honor Society",
+                goalHours = 30.0,
+                completedHours = 14.0
             )
         )
     }
+
+    var rsvpdEventIds by remember { mutableStateOf(setOf<String>()) }
+    var baseVerifiedHours by remember { mutableStateOf(14.0) }
+
+    fun toggleRsvp(event: VolunteerEvent) {
+        rsvpdEventIds = if (rsvpdEventIds.contains(event.id)) {
+            rsvpdEventIds - event.id
+        } else {
+            rsvpdEventIds + event.id
+        }
+    }
+
+    val totalHours = baseVerifiedHours + (rsvpdEventIds.size * 4.0)
+    val activeUserProfile = userProfile.copy(completedHours = totalHours)
 
     var events by remember { mutableStateOf<List<VolunteerEvent>>(emptyList()) }
     var selectedEvent by remember { mutableStateOf<VolunteerEvent?>(null) }
     val scope = rememberCoroutineScope()
 
-    val sortedEvents = remember(events, userProfile.intendedMajor) {
+    val sortedEvents = remember(events, activeUserProfile.intendedMajor) {
         val stemKeywords = listOf("stem", "tech", "computer", "code", "coding", "software", "robot", "robotics", "data", "ai", "3d print", "maker", "engineer", "python", "developer", "hardware", "digital")
         val preMedKeywords = listOf("medical", "hospital", "patient", "blood", "health", "clinic", "wellness", "comfort kit", "hospice")
         val ecoKeywords = listOf("park", "trail", "environment", "tree", "plant", "conservation", "nature", "wildflower", "prairie")
         val eduKeywords = listOf("tutor", "reading", "literacy", "library", "school", "mentor", "teach", "homework", "book")
         val bizKeywords = listOf("business", "finance", "resale", "store", "inventory", "budget", "merchandising", "logistics")
 
-        val (primary, secondary) = when (userProfile.intendedMajor) {
+        val (primary, secondary) = when (activeUserProfile.intendedMajor) {
             "Computer Science & Tech" -> stemKeywords to (bizKeywords + eduKeywords)
             "Engineering & Robotics" -> stemKeywords to (ecoKeywords + bizKeywords)
             "Pre-Med / Healthcare" -> preMedKeywords to eduKeywords
@@ -169,22 +186,34 @@ fun VolunteerHubApp() {
 
                 AppScreen.DASHBOARD -> {
                     DashboardScreen(
-                        userProfile = userProfile,
+                        userProfile = activeUserProfile,
                         events = sortedEvents,
+                        rsvpdEventIds = rsvpdEventIds,
                         onOpenXello = { event ->
                             selectedEvent = event
                             currentScreen = AppScreen.XELLO
+                        },
+                        onNavigateToDiscover = {
+                            selectedTab = 1
+                            currentScreen = AppScreen.DISCOVER
+                        },
+                        onToggleRsvp = { event ->
+                            toggleRsvp(event)
                         }
                     )
                 }
 
                 AppScreen.DISCOVER -> {
                     DiscoverScreen(
-                        userProfile = userProfile,
+                        userProfile = activeUserProfile,
                         events = sortedEvents,
+                        rsvpdEventIds = rsvpdEventIds,
                         onSelectEvent = { event ->
                             selectedEvent = event
                             currentScreen = AppScreen.XELLO
+                        },
+                        onToggleRsvp = { event ->
+                            toggleRsvp(event)
                         }
                     )
                 }
@@ -200,10 +229,8 @@ fun VolunteerHubApp() {
                 AppScreen.SIGNATURE -> {
                     SignatureScreen(
                         onSignatureVerified = { name, email ->
-                            // Update hours & return to dashboard
-                            userProfile = userProfile.copy(
-                                completedHours = userProfile.completedHours + 4.0
-                            )
+                            // Update base hours & return to dashboard
+                            baseVerifiedHours += 4.0
                             currentScreen = AppScreen.DASHBOARD
                         },
                         onCancel = {
@@ -216,6 +243,10 @@ fun VolunteerHubApp() {
                     val ev = selectedEvent ?: events.firstOrNull() ?: SupabaseRepository.getFallbackEvents().first()
                     XelloScreen(
                         event = ev,
+                        isRsvpd = rsvpdEventIds.contains(ev.id),
+                        onToggleRsvp = {
+                            toggleRsvp(ev)
+                        },
                         onBack = {
                             currentScreen = if (selectedTab == 1) AppScreen.DISCOVER else AppScreen.DASHBOARD
                         },
@@ -226,9 +257,10 @@ fun VolunteerHubApp() {
                 }
 
                 AppScreen.PDF -> {
+                    val relevantEvents = sortedEvents.filter { rsvpdEventIds.contains(it.id) }.ifEmpty { sortedEvents.take(3) }
                     PdfScreen(
-                        userProfile = userProfile,
-                        events = events,
+                        userProfile = activeUserProfile,
+                        events = relevantEvents,
                         onClose = {
                             currentScreen = AppScreen.XELLO
                         }
