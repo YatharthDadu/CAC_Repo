@@ -1,14 +1,50 @@
 [
     {
+        "organization_name": "Medical City Frisco",
+        "title": "Patient Comfort Kit Assembly",
+        "description": "High school volunteer volunteers and pre-med pathway students assist hospital staff in assembling comfort kits and hygiene packages for pediatric and adult patients. Volunteers will also assist with wayfinding, registration desk support, and organizing patient wellness supplies in Frisco, TX. Suitable for teens 14-18 earning NHS and pre-health hours.",
+        "source_url": "https://medicalcityhealthcare.com/locations/medical-city-frisco/about-us/volunteer/"
+    },
+    {
+        "organization_name": "Carter BloodCare",
+        "title": "Blood Drive Check-In Volunteer",
+        "description": "Youth and student volunteers greet blood donors, manage check-in rosters, provide post-donation refreshments, and ensure a welcoming environment during community mobile blood drives across Collin County and McKinney, TX. Great for students pursuing healthcare careers.",
+        "source_url": "https://www.carterbloodcare.org/volunteer/"
+    },
+    {
+        "organization_name": "Allen Senior Recreation Center",
+        "title": "Senior Center Health Fair Greeter",
+        "description": "Support our annual health & wellness fair in Allen, TX! Volunteers assist elderly community members with navigation, guide participants to wellness screening booths, and distribute educational health literature. Teens and student volunteers welcome.",
+        "source_url": "https://www.cityofallen.org/facilities/facility/details/Senior-Recreation-Center-30"
+    },
+    {
+        "organization_name": "Frisco Family Services",
+        "title": "Saturday Food Pantry Sort",
+        "description": "Join our Food Pantry shift in Frisco, TX! High school student volunteers inspect, date-check, categorize, and shelve donated pantry staples, produce, and household goods to support local families facing hunger. Ideal for NHS and teen service clubs.",
+        "source_url": "https://friscofamilyservices.org/volunteer/"
+    },
+    {
+        "organization_name": "North Texas Food Bank",
+        "title": "Perot Family Campus Box Packing Shift",
+        "description": "Student and youth volunteers pack food boxes and assemble nutritious family emergency kits at the NTFB distribution facility in Plano, TX. Each shift helps provide thousands of meals to children and seniors across North Texas.",
+        "source_url": "https://ntfb.org/get-involved/volunteer/"
+    },
+    {
         "organization_name": "McKinney Parks Foundation",
-        "title": "Park Cleanup",
-        "description": "Volunteer Information Subscribe to our e-mail list to be notified of upcoming events. The McKinney Parks Foundation is a nonprofit formed exclusively by volunteers. We offer volunteer workdays along the trails of McKinney and at the East McKinney Learning Garden. MPF Board Volunteers Volunteer of the Year 2022 Volunteers Volunteers If you\u2019re looking for unique opportunities to volunteer at a McKinney Park with your group, business, or organization, contact the McKinney Parks Foundation president at mckinneyparksfoundation@gmail.com to schedule your individual volunteer day. This would include individual projects, including building birdhouses, bug boxes, boardwalks, garden installation, prairie conservation, trail maintenance, and litter pick up. There are many committees with positions open on the McKinney Parks Foundation board. Please join us at our next Board Meeting to join the Board or a committee and make a difference in the community! Your Name* Your Email* Volunteer Interest* Trail Teams Educational Programs Administrative Phone Number* * Indicates a required field \u0394",
+        "title": "Towne Lake Trail Maintenance & Tree Planting",
+        "description": "Volunteer outdoor workday with the McKinney Parks Foundation! Volunteers will help with prairie conservation, mulching nature trails, planting native saplings, and general park cleanup along scenic McKinney, TX trails. Perfect for teens and environmental clubs.",
         "source_url": "https://www.mckinneyparksfoundation.org/volunteer/"
+    },
+    {
+        "organization_name": "Frisco Fastpacs",
+        "title": "Community Meal Packing Night",
+        "description": "Help ensure FISD students do not go hungry over the weekend! Volunteers assemble non-perishable weekend food packs for FISD school children in Frisco, TX. High school students, groups, and families welcome.",
+        "source_url": "https://www.friscofastpacs.org/volunteer-opportunities"
     },
     {
         "organization_name": "Frisco Public Library",
         "title": "VolunTEEN Program",
-        "description": "Become a VolunTEEN The VolunTEEN Corps is a community service initiative that offers middle and high school students an opportunity for civic involvement. VolunTEENs will enrich personal skills, enhance job skills, and gain work experience that can be included on resumes. VolunTEENs develop a better understanding of city government, serve as ambassadors within the community, and accumulate community service hours for school. Have questions? Submit your question using the form below. MIDDLE SCHOOL VOLUNTEEN For Frisco Residents ONLY going into Grades 7 or 8 in Fall 2026. This program is currently full. We expect to have limited spots available for next summer 2027. We will update this page with more instructions sometime in March 2027. Please read the FAQs , where many questions about tasks, procedures, and rules are answered. If you have a question that isn't covered, please use the webform at the bottom of this page. The purpose of this program is to allow middle school teens in the Frisco area a chance to earn service hours, volunteer in a supportive environment, and grow as an individual while contributing to the Library. VolunTEENs will be credited service hours for the time spent volunteering during scheduled shifts. *The Library does not guarantee that each participant will earn a certain number of volunteer hours. FAQs HERE . HIGH SCHOOL VOLUNTEEN For Frisco Residents ONLY going into Grades 9 \u2013 12 in Fall 2026. This program is currently full. We expect to have limited spots available for next summer 2027. We will update this web page with more instructions sometime in March 2027. Please read the FAQs , where many questions abouts tasks, procedures, and rules are answered. If you have a question that isn't covered, please use the webform at the bottom of this page. The purpose of this program is to allow high school teens in the Frisco area to enhance job skills, gain work experience, and grow as an individual while contributing to the Library. VolunTEENs will be credited service hours for time spent volunteering during scheduled shifts. *The Library does not guarantee that each participant will earn a certain number of volunteer hours. FAQs HERE . Any person needing a reasonable accommodation for a disability to access the benefits of the Library\u2019s volunteer program, services, or activities under the Americans with Disabilities Act should contact the Library by telephone at (972) 292-5669, by email at library@friscotexas.gov ,\u00a0or in writing before apply for applying to the library\u2019s volunteer program. CONTACT THE VOLUNTEEN CORPS COORDINATORS This form is for questions only, it is NOT an application for the program. \" * \" indicates required fields Facebook This field is for validation purposes and should be left unchanged. Name * First Last Email * Enter Email Confirm Email Message * Grade Level * Grade 6 Grade 7 Grade 8 Grade 9 Grade 10 Grade 11 Grade 12 This form is protected by reCAPTCHA If you require an alternate submission method, please contact us . This information will be submitted via email. Learn More about sending data over email .",
+        "description": "The VolunTEEN Corps offers high school students (Grades 9-12) civic involvement and library service in Frisco, TX. VolunTEENs assist with youth maker programs, book inventory, digital learning labs, and community literacy outreach.",
         "source_url": "https://friscolibrary.com/volunteen/"
     }
 ]

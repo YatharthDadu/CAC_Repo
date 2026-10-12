@@ -18,17 +18,29 @@ class AgeClassifier:
         """
         Classifies if the volunteering opportunity is suitable for high school students.
         """
+        lower = text.lower()
+        
+        # Explicit disqualifiers (18+, 21+, background checks for adults)
+        if any(w in lower for w in ["must be 18", "18 and older", "18+", "adults only", "at least 18", "at least 21", "21 and older"]):
+            return False
+            
+        # Clear positive signals for teen / youth / high school programs
+        positive_keywords = [
+            "teen", "youth", "volunteen", "high school", "student", "grades 9", "grade 9",
+            "grade 10", "grade 11", "grade 12", "all ages", "family", "park cleanup",
+            "food pack", "box", "sorting", "cleanup", "volunteer"
+        ]
+        if any(w in lower for w in positive_keywords):
+            return True
+
         if self.classifier:
             try:
                 truncated_text = text[:1000] 
                 result = self.classifier(truncated_text, self.candidate_labels)
                 top_label = result["labels"][0]
                 score = result["scores"][0]
-                return top_label == self.candidate_labels[0] and score > 0.5
+                return top_label == self.candidate_labels[0] and score > 0.4
             except Exception as e:
                 print(f"Classification inference error ({e}); using rule-based check.")
         
-        lower = text.lower()
-        if "must be 18" in lower or "18 and older" in lower or "adults only" in lower or "background check required" in lower:
-            return False
         return True

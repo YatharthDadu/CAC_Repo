@@ -35,19 +35,23 @@ async def run_pipeline():
     # 1. Scrape data
     print("\n--- Phase 1: Scraping Targets ---")
     raw_events = await scrape_all_targets()
-    print(f"Scraped {len(raw_events)} raw events.")
+    print(f"Scraped {len(raw_events)} live events.")
+    
+    # Merge rich curated North Texas catalog
+    import json
+    raw_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "raw_targets.json")
+    if os.path.exists(raw_path):
+        with open(raw_path, "r", encoding="utf-8") as f:
+            curated_events = json.load(f)
+        existing_titles = {e.get('title') for e in raw_events}
+        for item in curated_events:
+            if item.get('title') not in existing_titles:
+                raw_events.append(item)
+        print(f"Catalog total (live + North Texas targets): {len(raw_events)} events.")
     
     if not raw_events:
-        print("No events scraped. Checking fallback raw_targets.json...")
-        import json
-        raw_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "raw_targets.json")
-        if os.path.exists(raw_path):
-            with open(raw_path, "r", encoding="utf-8") as f:
-                raw_events = json.load(f)
-            print(f"Loaded {len(raw_events)} events from raw_targets.json fallback.")
-        else:
-            print("No events found. Exiting.")
-            return
+        print("No events found. Exiting.")
+        return
 
     # Initialize NLP and Embedding models
     age_classifier = AgeClassifier()
