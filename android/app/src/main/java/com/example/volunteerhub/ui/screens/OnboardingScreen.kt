@@ -278,7 +278,7 @@ private fun HeroWelcomeView(
                     border = androidx.compose.foundation.BorderStroke(1.dp, VibrantBubblegum.copy(alpha = 0.35f))
                 ) {
                     Text(
-                        text = "✨ FOR HIGH SCHOOL CHANGEMAKERS",
+                        text = "✦ FOR HIGH SCHOOL CHANGEMAKERS",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = InterFontFamily,
@@ -396,17 +396,13 @@ private fun SignInView(
                 Spacer(modifier = Modifier.height(18.dp))
 
                 // Heading & Subtitle
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "Welcome Back!",
-                        fontSize = 32.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.Bold,
-                        color = Y2KTextDeep
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("✨", fontSize = 22.sp)
-                }
+                Text(
+                    text = "Welcome Back!",
+                    fontSize = 32.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    color = Y2KTextDeep
+                )
 
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
@@ -476,7 +472,14 @@ private fun SignInView(
                     leadingIcon = { Text("🔒", fontSize = 16.sp) },
                     trailingIcon = {
                         IconButton(onClick = onPasswordVisibleToggle) {
-                            Text(if (passwordVisible) "👁️" else "🙈", fontSize = 16.sp)
+                            Icon(
+                                painter = androidx.compose.ui.res.painterResource(
+                                    if (passwordVisible) com.example.volunteerhub.R.drawable.ic_eye_open else com.example.volunteerhub.R.drawable.ic_eye_closed
+                                ),
+                                contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                                tint = if (passwordVisible) VibrantPeriwinkle else Y2KTextMuted,
+                                modifier = Modifier.size(22.dp)
+                            )
                         }
                     },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -655,17 +658,13 @@ private fun CreateAccountView(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "Create Account",
-                        fontSize = 32.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.Bold,
-                        color = Y2KTextDeep
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("🌸", fontSize = 22.sp)
-                }
+                Text(
+                    text = "Create Account",
+                    fontSize = 32.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    color = Y2KTextDeep
+                )
 
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
@@ -720,7 +719,14 @@ private fun CreateAccountView(
                     leadingIcon = { Text("🔒", fontSize = 16.sp) },
                     trailingIcon = {
                         IconButton(onClick = onPasswordVisibleToggle) {
-                            Text(if (passwordVisible) "👁️" else "🙈", fontSize = 16.sp)
+                            Icon(
+                                painter = androidx.compose.ui.res.painterResource(
+                                    if (passwordVisible) com.example.volunteerhub.R.drawable.ic_eye_open else com.example.volunteerhub.R.drawable.ic_eye_closed
+                                ),
+                                contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                                tint = if (passwordVisible) VibrantPeriwinkle else Y2KTextMuted,
+                                modifier = Modifier.size(22.dp)
+                            )
                         }
                     },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -752,6 +758,18 @@ private fun CreateAccountView(
                     onValueChange = onConfirmPasswordChange,
                     placeholder = { Text("Re-enter password", color = Color(0xFF94A3B8), fontSize = 14.sp, fontFamily = InterFontFamily) },
                     leadingIcon = { Text("🔒", fontSize = 16.sp) },
+                    trailingIcon = {
+                        IconButton(onClick = onPasswordVisibleToggle) {
+                            Icon(
+                                painter = androidx.compose.ui.res.painterResource(
+                                    if (passwordVisible) com.example.volunteerhub.R.drawable.ic_eye_open else com.example.volunteerhub.R.drawable.ic_eye_closed
+                                ),
+                                contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                                tint = if (passwordVisible) VibrantPeriwinkle else Y2KTextMuted,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                    },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     singleLine = true,
@@ -897,17 +915,13 @@ private fun ProfileSetupView(
             Column {
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "Set Up Profile",
-                        fontSize = 30.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.Bold,
-                        color = Y2KTextDeep
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("💫", fontSize = 22.sp)
-                }
+                Text(
+                    text = "Set Up Profile",
+                    fontSize = 30.sp,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    color = Y2KTextDeep
+                )
 
                 Text(
                     text = "Customize your profile to discover aligned North Texas volunteer hours.",
@@ -1107,8 +1121,8 @@ private fun ProfileSetupView(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(Y2KButtonGradient),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    contentAlignment = Alignment.Center
+                ) {
                     Text(
                         text = "CONTINUE",
                         fontSize = 15.sp,
