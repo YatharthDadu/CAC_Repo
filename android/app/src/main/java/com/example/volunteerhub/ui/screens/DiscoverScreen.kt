@@ -1,5 +1,7 @@
 package com.example.volunteerhub.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.volunteerhub.model.UserProfile
 import com.example.volunteerhub.model.VolunteerEvent
+import com.example.volunteerhub.ui.theme.*
 
 @Composable
 fun DiscoverScreen(
@@ -127,20 +130,24 @@ fun DiscoverScreen(
                 Text(
                     text = "Discover Service",
                     fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    color = Y2KTextDeep
                 )
                 Text(
                     text = "AI-ranked opportunities matched across Idealist & North Texas partners.",
                     fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    fontFamily = InterFontFamily,
+                    color = Y2KTextSecondary
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 // Major Priority Badge
                 Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = Color(0xFF007AFF).copy(alpha = 0.10f),
+                    shape = RoundedCornerShape(14.dp),
+                    color = PastelLavenderLight,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, PastelLavenderDeep.copy(alpha = 0.6f)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -153,13 +160,15 @@ fun DiscoverScreen(
                             Text(
                                 text = "Prioritizing: ${userProfile.intendedMajor}",
                                 fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
                                 fontSize = 14.sp,
-                                color = Color(0xFF007AFF)
+                                color = DeepRoyalViolet
                             )
                             Text(
                                 text = "Top ${userProfile.intendedMajor} recommendations boosted to top",
                                 fontSize = 11.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                fontFamily = InterFontFamily,
+                                color = Y2KTextSecondary
                             )
                         }
                     }
@@ -173,26 +182,54 @@ fun DiscoverScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     filters.take(4).forEach { filter ->
-                        FilterChip(
-                            selected = (selectedFilter == filter),
+                        val isSelected = selectedFilter == filter
+                        Surface(
                             onClick = { selectedFilter = filter },
-                            label = { Text(filter, fontSize = 12.sp) },
-                            shape = RoundedCornerShape(12.dp)
-                        )
+                            shape = RoundedCornerShape(14.dp),
+                            color = if (isSelected) PastelLavender else Color.White,
+                            border = androidx.compose.foundation.BorderStroke(
+                                if (isSelected) 1.5.dp else 1.dp,
+                                if (isSelected) VibrantPeriwinkle else Y2KBorderSoft
+                            ),
+                            shadowElevation = if (isSelected) 2.dp else 0.dp
+                        ) {
+                            Text(
+                                text = filter,
+                                fontSize = 12.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                color = if (isSelected) DeepRoyalViolet else Y2KTextSecondary,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                            )
+                        }
                     }
                 }
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     filters.drop(4).forEach { filter ->
-                        FilterChip(
-                            selected = (selectedFilter == filter),
+                        val isSelected = selectedFilter == filter
+                        Surface(
                             onClick = { selectedFilter = filter },
-                            label = { Text(filter, fontSize = 12.sp) },
-                            shape = RoundedCornerShape(12.dp)
-                        )
+                            shape = RoundedCornerShape(14.dp),
+                            color = if (isSelected) PastelLavender else Color.White,
+                            border = androidx.compose.foundation.BorderStroke(
+                                if (isSelected) 1.5.dp else 1.dp,
+                                if (isSelected) VibrantPeriwinkle else Y2KBorderSoft
+                            ),
+                            shadowElevation = if (isSelected) 2.dp else 0.dp
+                        ) {
+                            Text(
+                                text = filter,
+                                fontSize = 12.sp,
+                                fontFamily = InterFontFamily,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                color = if (isSelected) DeepRoyalViolet else Y2KTextSecondary,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -202,6 +239,7 @@ fun DiscoverScreen(
             item {
                 Card(
                     shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = PastelLavenderLight.copy(alpha = 0.5f)),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 24.dp)
@@ -217,172 +255,220 @@ fun DiscoverScreen(
                         Text(
                             "No events found for '$selectedFilter'",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
+                            fontFamily = InterFontFamily,
+                            fontSize = 16.sp,
+                            color = Y2KTextDeep
                         )
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            "Switch to 'All' to view all matched volunteer opportunities.",
+                            "Try choosing 'All' or another category to view active North Texas volunteer sessions.",
                             fontSize = 13.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            fontFamily = InterFontFamily,
+                            color = Y2KTextSecondary
                         )
                     }
                 }
             }
-        }
+        } else {
+            items(displayedEvents) { event ->
+                val isRsvpd = rsvpdEventIds.contains(event.id)
+                val score = ((event.similarity ?: 0.5) * 100).toInt()
+                val categoryTag = getCategoryTag(event)
 
-        items(displayedEvents) { event ->
-            val isRsvpd = rsvpdEventIds.contains(event.id)
-            val score = ((event.similarity ?: 0.95) * 100).toInt()
-            val categoryTag = getCategoryTag(event)
-
-            Card(
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                border = if (isRsvpd) androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFF34C759).copy(alpha = 0.5f)) else null,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.padding(18.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = when {
-                                score >= 90 -> Color(0xFFFF9500).copy(alpha = 0.15f)
-                                score >= 75 -> Color(0xFF007AFF).copy(alpha = 0.12f)
-                                else -> MaterialTheme.colorScheme.surfaceVariant
-                            }
+                Card(
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        if (isRsvpd) PastelMint else PastelLavenderDeep.copy(alpha = 0.4f)
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(18.dp)) {
+                        // Top Match score & Distance
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = if (score >= 90) "🔥 $score% Match" else if (score >= 75) "✨ $score% Match" else "🤝 $score% Match",
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
                                 color = when {
-                                    score >= 90 -> Color(0xFFFF9500)
-                                    score >= 75 -> Color(0xFF007AFF)
-                                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                    score >= 90 -> PastelButtercup
+                                    score >= 75 -> PastelSkyBlue
+                                    else -> Color(0xFFF1F5F9)
                                 },
-                                fontWeight = FontWeight.Bold,
+                                border = androidx.compose.foundation.BorderStroke(
+                                    1.dp,
+                                    when {
+                                        score >= 90 -> VibrantButtercup.copy(alpha = 0.5f)
+                                        score >= 75 -> VibrantSkyBlue.copy(alpha = 0.5f)
+                                        else -> Y2KBorderSoft
+                                    }
+                                )
+                            ) {
+                                Text(
+                                    text = "🔥 $score% Match",
+                                    color = when {
+                                        score >= 90 -> Color(0xFFB45309)
+                                        score >= 75 -> DeepSkyBlue
+                                        else -> Y2KTextMuted
+                                    },
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = InterFontFamily,
+                                    fontSize = 12.sp,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
+
+                            Text(
+                                text = "📍 ${event.location}",
                                 fontSize = 12.sp,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                fontFamily = InterFontFamily,
+                                color = Y2KTextMuted
                             )
                         }
 
+                        Spacer(modifier = Modifier.height(10.dp))
+
                         Text(
-                            text = "📍 ${event.location}",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = event.title,
+                            fontSize = 18.sp,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Bold,
+                            color = Y2KTextDeep
                         )
-                    }
 
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Text(
-                        text = event.title,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = event.organizationName,
-                            fontSize = 14.sp,
-                            color = Color(0xFF007AFF),
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        Spacer(modifier = Modifier.height(4.dp))
 
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            if (isRsvpd) {
+                            Text(
+                                text = event.organizationName,
+                                fontSize = 14.sp,
+                                fontFamily = InterFontFamily,
+                                color = VibrantPeriwinkle,
+                                fontWeight = FontWeight.SemiBold
+                            )
+
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                if (isRsvpd) {
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = PastelMint,
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, VibrantMint.copy(alpha = 0.4f))
+                                    ) {
+                                        Text(
+                                            text = "✓ NHS +4h",
+                                            fontSize = 11.sp,
+                                            fontFamily = InterFontFamily,
+                                            fontWeight = FontWeight.Bold,
+                                            color = DeepEmerald,
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                        )
+                                    }
+                                }
+
                                 Surface(
                                     shape = RoundedCornerShape(6.dp),
-                                    color = Color(0xFF34C759).copy(alpha = 0.15f)
+                                    color = PastelLavenderLight,
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, PastelLavenderDeep.copy(alpha = 0.4f))
                                 ) {
                                     Text(
-                                        text = "✓ NHS +4h",
+                                        text = categoryTag,
                                         fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF34C759),
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Medium,
+                                        color = DeepRoyalViolet,
                                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                     )
                                 }
                             }
-
-                            Surface(
-                                shape = RoundedCornerShape(6.dp),
-                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
-                            ) {
-                                Text(
-                                    text = categoryTag,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                )
-                            }
                         }
-                    }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(
-                        text = event.description.ifEmpty { "Verified volunteer session supporting North Texas community initiatives." },
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 3
-                    )
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
                         Text(
-                            text = "🗓️ ${event.eventDate}",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = event.description.ifEmpty { "Verified volunteer session supporting North Texas community initiatives." },
+                            fontSize = 13.sp,
+                            fontFamily = InterFontFamily,
+                            color = Y2KTextSecondary,
+                            maxLines = 3
                         )
 
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                            OutlinedButton(
-                                onClick = { onSelectEvent(event) },
-                                shape = RoundedCornerShape(12.dp),
-                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-                            ) {
-                                Text("Details", fontSize = 13.sp, maxLines = 1)
-                            }
+                        Spacer(modifier = Modifier.height(14.dp))
 
-                            Button(
-                                onClick = {
-                                    onToggleRsvp(event)
-                                    val msg = if (!isRsvpd) {
-                                        "✓ RSVP Confirmed! +4.0 hrs added to National Honor Society."
-                                    } else {
-                                        "RSVP removed. National Honor Society hours updated."
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "🗓️ ${event.eventDate}",
+                                fontSize = 12.sp,
+                                fontFamily = InterFontFamily,
+                                color = Y2KTextMuted
+                            )
+
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                OutlinedButton(
+                                    onClick = { onSelectEvent(event) },
+                                    shape = RoundedCornerShape(12.dp),
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                                ) {
+                                    Text("Details", fontSize = 13.sp, fontFamily = InterFontFamily, maxLines = 1)
+                                }
+
+                                if (isRsvpd) {
+                                    Surface(
+                                        onClick = {
+                                            onToggleRsvp(event)
+                                            android.widget.Toast.makeText(context, "RSVP removed. National Honor Society hours updated.", android.widget.Toast.LENGTH_SHORT).show()
+                                        },
+                                        shape = RoundedCornerShape(12.dp),
+                                        color = PastelMint,
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, VibrantMint.copy(alpha = 0.5f))
+                                    ) {
+                                        Text(
+                                            text = "✓ RSVP'd",
+                                            color = DeepEmerald,
+                                            fontWeight = FontWeight.Bold,
+                                            fontFamily = InterFontFamily,
+                                            fontSize = 13.sp,
+                                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
+                                        )
                                     }
-                                    android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show()
-                                },
-                                shape = RoundedCornerShape(12.dp),
-                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (isRsvpd) Color(0xFF34C759) else Color(0xFF007AFF)
-                                )
-                            ) {
-                                Text(
-                                    text = if (isRsvpd) "✓ RSVP'd" else "RSVP",
-                                    fontSize = 13.sp,
-                                    maxLines = 1,
-                                    softWrap = false
-                                )
+                                } else {
+                                    Surface(
+                                        onClick = {
+                                            onToggleRsvp(event)
+                                            android.widget.Toast.makeText(context, "✓ RSVP Confirmed! +4.0 hrs added to National Honor Society.", android.widget.Toast.LENGTH_SHORT).show()
+                                        },
+                                        shape = RoundedCornerShape(12.dp),
+                                        shadowElevation = 3.dp
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .background(Y2KButtonGradient)
+                                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                        ) {
+                                            Text(
+                                                text = "RSVP",
+                                                color = Color.White,
+                                                fontWeight = FontWeight.Bold,
+                                                fontFamily = InterFontFamily,
+                                                fontSize = 13.sp
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

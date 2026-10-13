@@ -2,6 +2,7 @@ package com.example.volunteerhub.ui.screens
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.volunteerhub.model.UserProfile
 import com.example.volunteerhub.model.VolunteerEvent
+import com.example.volunteerhub.ui.theme.*
 
 @Composable
 fun DashboardScreen(
@@ -53,22 +55,27 @@ fun DashboardScreen(
                     Text(
                         text = "Hello, ${userProfile.fullName.split(" ").firstOrNull() ?: "Alex"} 👋",
                         fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        color = Y2KTextDeep
                     )
                     Text(
                         text = "${userProfile.grade} • ${userProfile.intendedMajor}",
                         fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        fontFamily = InterFontFamily,
+                        color = Y2KTextSecondary
                     )
                 }
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = Color(0xFF007AFF).copy(alpha = 0.12f)
+                    color = PastelLavender,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, PastelLavenderDeep.copy(alpha = 0.6f))
                 ) {
                     Text(
                         text = "TX-04",
-                        color = Color(0xFF007AFF),
+                        color = DeepRoyalViolet,
                         fontWeight = FontWeight.Bold,
+                        fontFamily = InterFontFamily,
                         fontSize = 13.sp,
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                     )
@@ -80,7 +87,9 @@ fun DashboardScreen(
             // National Honor Society (NHS) Circular Progress Card
             Card(
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)),
+                colors = CardDefaults.cardColors(containerColor = PastelLavenderLight),
+                border = androidx.compose.foundation.BorderStroke(1.dp, PastelLavenderDeep.copy(alpha = 0.5f)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .animateContentSize()
@@ -96,8 +105,9 @@ fun DashboardScreen(
                                 Text(
                                     text = "🏛️ ${userProfile.targetClub} (NHS)",
                                     fontSize = 14.sp,
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF007AFF)
+                                    color = VibrantPeriwinkle
                                 )
                             }
 
@@ -106,7 +116,9 @@ fun DashboardScreen(
                             Text(
                                 text = "${userProfile.completedHours.toInt()} / ${userProfile.goalHours.toInt()} Hours",
                                 fontSize = 28.sp,
-                                fontWeight = FontWeight.Black
+                                fontFamily = InterFontFamily,
+                                fontWeight = FontWeight.Bold,
+                                color = Y2KTextDeep
                             )
 
                             Spacer(modifier = Modifier.height(4.dp))
@@ -118,20 +130,23 @@ fun DashboardScreen(
                                     "🎉 Fall NHS requirement fulfilled!"
                                 },
                                 fontSize = 13.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = if (hoursRemaining > 0) MaterialTheme.colorScheme.onSurfaceVariant else Color(0xFF34C759)
+                                fontFamily = InterFontFamily,
+                                color = Y2KTextSecondary
                             )
                         }
 
-                        // Progress Ring Canvas
-                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(94.dp)) {
-                            Canvas(modifier = Modifier.fillMaxSize()) {
-                                drawCircle(
-                                    color = Color(0xFF007AFF).copy(alpha = 0.15f),
-                                    style = Stroke(width = 10.dp.toPx())
+                        // Circular Progress Indicator
+                        Box(contentAlignment = Alignment.Center) {
+                            Canvas(modifier = Modifier.size(80.dp)) {
+                                drawArc(
+                                    color = PastelLavenderDeep.copy(alpha = 0.35f),
+                                    startAngle = -90f,
+                                    sweepAngle = 360f,
+                                    useCenter = false,
+                                    style = Stroke(width = 10.dp.toPx(), cap = StrokeCap.Round)
                                 )
                                 drawArc(
-                                    color = if (progress >= 1f) Color(0xFF34C759) else Color(0xFF007AFF),
+                                    color = VibrantPeriwinkle,
                                     startAngle = -90f,
                                     sweepAngle = 360f * progress,
                                     useCenter = false,
@@ -142,19 +157,22 @@ fun DashboardScreen(
                                 Text(
                                     text = "${(progress * 100).toInt()}%",
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 17.sp
+                                    fontFamily = InterFontFamily,
+                                    fontSize = 17.sp,
+                                    color = Y2KTextDeep
                                 )
                                 Text(
                                     text = "Goal",
                                     fontSize = 10.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    fontFamily = InterFontFamily,
+                                    color = Y2KTextMuted
                                 )
                             }
                         }
                     }
 
                     Spacer(modifier = Modifier.height(14.dp))
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    HorizontalDivider(color = PastelLavenderDeep.copy(alpha = 0.4f))
                     Spacer(modifier = Modifier.height(12.dp))
 
                     // Audit info and RSVP impact breakdown
@@ -167,23 +185,27 @@ fun DashboardScreen(
                             Text(
                                 text = "Audit Deadline: Nov 15, 2026",
                                 fontSize = 11.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                fontFamily = InterFontFamily,
+                                color = Y2KTextSecondary
                             )
                             Text(
                                 text = "14h verified base",
                                 fontSize = 11.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                fontFamily = InterFontFamily,
+                                color = Y2KTextMuted
                             )
                         }
 
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = if (rsvpCount > 0) Color(0xFF34C759).copy(alpha = 0.15f) else Color.Gray.copy(alpha = 0.12f)
+                            color = if (rsvpCount > 0) PastelMint else Color(0xFFF1F5F9),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, if (rsvpCount > 0) VibrantMint.copy(alpha = 0.4f) else Y2KBorderSoft)
                         ) {
                             Text(
                                 text = if (rsvpCount > 0) "+${rsvpHours}h from $rsvpCount RSVP${if (rsvpCount != 1) "s" else ""}" else "0 active RSVPs",
-                                color = if (rsvpCount > 0) Color(0xFF34C759) else Color.DarkGray,
+                                color = if (rsvpCount > 0) DeepEmerald else Y2KTextMuted,
                                 fontWeight = FontWeight.Bold,
+                                fontFamily = InterFontFamily,
                                 fontSize = 12.sp,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                             )
@@ -202,18 +224,22 @@ fun DashboardScreen(
                 Text(
                     text = "Upcoming RSVPs & Verified Logs",
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    color = Y2KTextDeep
                 )
 
                 if (rsvpCount > 0) {
                     Surface(
                         shape = RoundedCornerShape(10.dp),
-                        color = Color(0xFF007AFF).copy(alpha = 0.12f)
+                        color = PastelLavender,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, PastelLavenderDeep.copy(alpha = 0.6f))
                     ) {
                         Text(
                             text = "$rsvpCount Scheduled",
-                            color = Color(0xFF007AFF),
+                            color = DeepRoyalViolet,
                             fontWeight = FontWeight.Bold,
+                            fontFamily = InterFontFamily,
                             fontSize = 12.sp,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                         )
@@ -226,7 +252,8 @@ fun DashboardScreen(
             item {
                 Card(
                     shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
+                    colors = CardDefaults.cardColors(containerColor = PastelLavenderLight.copy(alpha = 0.6f)),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, PastelLavenderDeep.copy(alpha = 0.4f)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
@@ -240,22 +267,37 @@ fun DashboardScreen(
                         Text(
                             text = "No Upcoming RSVPs Yet",
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Bold,
+                            color = Y2KTextDeep
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "RSVP to opportunities in Discover to add upcoming shifts here and automatically credit hours toward your National Honor Society goal.",
                             fontSize = 13.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontFamily = InterFontFamily,
+                            color = Y2KTextSecondary,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        Button(
+                        Surface(
                             onClick = onNavigateToDiscover,
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007AFF))
+                            shape = RoundedCornerShape(14.dp),
+                            shadowElevation = 4.dp
                         ) {
-                            Text("Browse Discover Opportunities →", fontSize = 13.sp)
+                            Box(
+                                modifier = Modifier
+                                    .background(Y2KButtonGradient)
+                                    .padding(horizontal = 18.dp, vertical = 10.dp)
+                            ) {
+                                Text(
+                                    text = "Browse Discover Opportunities →",
+                                    fontSize = 13.sp,
+                                    fontFamily = InterFontFamily,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                            }
                         }
                     }
                 }
@@ -264,11 +306,10 @@ fun DashboardScreen(
             items(rsvpdEventsList) { event ->
                 Card(
                     shape = RoundedCornerShape(18.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(1.dp, Color(0xFF34C759).copy(alpha = 0.35f), RoundedCornerShape(18.dp))
+                    border = androidx.compose.foundation.BorderStroke(1.dp, PastelMint),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(
@@ -278,12 +319,14 @@ fun DashboardScreen(
                         ) {
                             Surface(
                                 shape = RoundedCornerShape(6.dp),
-                                color = Color(0xFF34C759).copy(alpha = 0.15f)
+                                color = PastelMint,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, VibrantMint.copy(alpha = 0.4f))
                             ) {
                                 Text(
                                     text = "✓ RSVP Confirmed • +4.0 hrs",
-                                    color = Color(0xFF34C759),
+                                    color = DeepEmerald,
                                     fontSize = 11.sp,
+                                    fontFamily = InterFontFamily,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                                 )
@@ -292,7 +335,8 @@ fun DashboardScreen(
                             Text(
                                 text = "📍 ${event.location}",
                                 fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                fontFamily = InterFontFamily,
+                                color = Y2KTextMuted
                             )
                         }
 
@@ -301,7 +345,9 @@ fun DashboardScreen(
                         Text(
                             text = event.title,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
+                            fontFamily = InterFontFamily,
+                            fontSize = 16.sp,
+                            color = Y2KTextDeep
                         )
 
                         Spacer(modifier = Modifier.height(2.dp))
@@ -309,7 +355,8 @@ fun DashboardScreen(
                         Text(
                             text = event.organizationName,
                             fontSize = 13.sp,
-                            color = Color(0xFF007AFF),
+                            fontFamily = InterFontFamily,
+                            color = VibrantPeriwinkle,
                             fontWeight = FontWeight.SemiBold
                         )
 
@@ -318,7 +365,8 @@ fun DashboardScreen(
                         Text(
                             text = "🗓️ ${event.eventDate} • Counts toward NHS Goal",
                             fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            fontFamily = InterFontFamily,
+                            color = Y2KTextSecondary
                         )
 
                         Spacer(modifier = Modifier.height(12.dp))
@@ -330,21 +378,32 @@ fun DashboardScreen(
                         ) {
                             OutlinedButton(
                                 onClick = { onToggleRsvp(event) },
-                                shape = RoundedCornerShape(10.dp),
+                                shape = RoundedCornerShape(12.dp),
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                             ) {
-                                Text("Cancel RSVP", fontSize = 12.sp, color = MaterialTheme.colorScheme.error)
+                                Text("Cancel RSVP", fontSize = 12.sp, fontFamily = InterFontFamily, color = MaterialTheme.colorScheme.error)
                             }
 
                             Spacer(modifier = Modifier.width(8.dp))
 
-                            Button(
+                            Surface(
                                 onClick = { onOpenXello(event) },
-                                shape = RoundedCornerShape(10.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007AFF)),
-                                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
+                                shape = RoundedCornerShape(12.dp),
+                                shadowElevation = 2.dp
                             ) {
-                                Text("Export / Xello ↗", fontSize = 12.sp)
+                                Box(
+                                    modifier = Modifier
+                                        .background(Y2KButtonGradient)
+                                        .padding(horizontal = 14.dp, vertical = 8.dp)
+                                ) {
+                                    Text(
+                                        text = "Export / Xello ↗",
+                                        fontSize = 12.sp,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                }
                             }
                         }
                     }

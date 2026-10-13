@@ -129,9 +129,17 @@ fun VolunteerHubApp() {
             // Only show bottom navigation when inside the main app screens
             if (currentScreen in listOf(AppScreen.DASHBOARD, AppScreen.DISCOVER, AppScreen.SCANNER)) {
                 NavigationBar(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    tonalElevation = 8.dp
+                    containerColor = Color.White,
+                    tonalElevation = 6.dp
                 ) {
+                    val navItemColors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = com.example.volunteerhub.ui.theme.VibrantPeriwinkle,
+                        selectedTextColor = com.example.volunteerhub.ui.theme.DeepRoyalViolet,
+                        indicatorColor = com.example.volunteerhub.ui.theme.PastelLavender,
+                        unselectedIconColor = com.example.volunteerhub.ui.theme.Y2KTextMuted,
+                        unselectedTextColor = com.example.volunteerhub.ui.theme.Y2KTextMuted
+                    )
+
                     NavigationBarItem(
                         selected = (selectedTab == 0),
                         onClick = {
@@ -139,7 +147,8 @@ fun VolunteerHubApp() {
                             currentScreen = AppScreen.DASHBOARD
                         },
                         icon = { Text("📊", fontSize = 20.sp) },
-                        label = { Text("Dashboard", fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) }
+                        label = { Text("Dashboard", fontFamily = com.example.volunteerhub.ui.theme.InterFontFamily, fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Medium) },
+                        colors = navItemColors
                     )
 
                     NavigationBarItem(
@@ -149,7 +158,8 @@ fun VolunteerHubApp() {
                             currentScreen = AppScreen.DISCOVER
                         },
                         icon = { Text("✨", fontSize = 20.sp) },
-                        label = { Text("Discover", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) }
+                        label = { Text("Discover", fontFamily = com.example.volunteerhub.ui.theme.InterFontFamily, fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Medium) },
+                        colors = navItemColors
                     )
 
                     NavigationBarItem(
@@ -159,7 +169,8 @@ fun VolunteerHubApp() {
                             currentScreen = AppScreen.SCANNER
                         },
                         icon = { Text("📷", fontSize = 20.sp) },
-                        label = { Text("Scan", fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal) }
+                        label = { Text("Scan", fontFamily = com.example.volunteerhub.ui.theme.InterFontFamily, fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Medium) },
+                        colors = navItemColors
                     )
                 }
             }
