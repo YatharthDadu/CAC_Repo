@@ -218,148 +218,21 @@ private fun HeroWelcomeView(
             }
         }
 
-        // Bold Center Hero Typography
-        Column(modifier = Modifier.padding(top = 8.dp)) {
+        // Center Hero Typography with lighter Inter font
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 32.dp)
+        ) {
             Text(
                 text = "No more —\nHurdles or\nRoadblocks\n— Just Pure\nVolunteering\nImpact.",
-                fontSize = 36.sp,
-                lineHeight = 44.sp,
-                fontWeight = FontWeight.Black,
+                fontSize = 42.sp,
+                lineHeight = 52.sp,
+                fontFamily = com.example.volunteerhub.ui.theme.InterFontFamily,
+                fontWeight = FontWeight.Normal,
+                letterSpacing = (-1).sp,
                 color = Color.White
             )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Floating Preview Cards (Matches design reference style)
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                // Card 1: Warm Gold Card
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = WarmGoldAccent,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Surface(
-                                shape = RoundedCornerShape(12.dp),
-                                color = Color.Black.copy(alpha = 0.15f),
-                                modifier = Modifier.size(44.dp)
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text("🤖", fontSize = 22.sp)
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.width(12.dp))
-
-                            Column {
-                                Surface(
-                                    shape = RoundedCornerShape(6.dp),
-                                    color = Color.Black.copy(alpha = 0.8f)
-                                ) {
-                                    Text(
-                                        text = "LIVE NOW",
-                                        fontSize = 9.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = WarmGoldAccent,
-                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(3.dp))
-                                Text(
-                                    text = "STEM Mentors in Frisco",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF16181F)
-                                )
-                                Text(
-                                    text = "STEM For Others • 4.0 hrs",
-                                    fontSize = 11.sp,
-                                    color = Color(0xFF16181F).copy(alpha = 0.75f)
-                                )
-                            }
-                        }
-
-                        Surface(
-                            shape = CircleShape,
-                            color = Color(0xFF16181F),
-                            modifier = Modifier.size(36.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text("⚡", fontSize = 16.sp, color = WarmGoldAccent)
-                            }
-                        }
-                    }
-                }
-
-                // Card 2: Forest Green Card
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = ForestGreenPrimary,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Surface(
-                                shape = RoundedCornerShape(12.dp),
-                                color = Color.White.copy(alpha = 0.15f),
-                                modifier = Modifier.size(44.dp)
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text("🏛️", fontSize = 22.sp)
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.width(12.dp))
-
-                            Column {
-                                Surface(
-                                    shape = RoundedCornerShape(6.dp),
-                                    color = WarmGoldAccent
-                                ) {
-                                    Text(
-                                        text = "AUDIT READY",
-                                        fontSize = 9.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF16181F),
-                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(3.dp))
-                                Text(
-                                    text = "National Honor Society",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                                Text(
-                                    text = "14 / 30 Hours Verified",
-                                    fontSize = 11.sp,
-                                    color = Color.White.copy(alpha = 0.75f)
-                                )
-                            }
-                        }
-
-                        Surface(
-                            shape = CircleShape,
-                            color = Color.White.copy(alpha = 0.15f),
-                            modifier = Modifier.size(36.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text("✓", fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         // Bottom Swipe To Get Started Slider & Create Account prompt
@@ -375,23 +248,25 @@ private fun HeroWelcomeView(
                 onSwipeComplete = onSwipeToStart
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "New to VolunteerHub? ",
+                    fontFamily = com.example.volunteerhub.ui.theme.InterFontFamily,
                     fontSize = 13.sp,
                     color = Color.White.copy(alpha = 0.6f)
                 )
                 Text(
                     text = "Create Account",
+                    fontFamily = com.example.volunteerhub.ui.theme.InterFontFamily,
                     fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
                     color = WarmGoldAccent,
                     modifier = Modifier.clickable { onSignUpClick() }
                 )
             }
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
@@ -1242,9 +1117,10 @@ fun SwipeToStartSlider(
         ) {
             Text(
                 text = text,
+                fontFamily = com.example.volunteerhub.ui.theme.InterFontFamily,
                 color = textColor,
                 fontSize = 15.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
                 letterSpacing = 0.5.sp
             )
         }
