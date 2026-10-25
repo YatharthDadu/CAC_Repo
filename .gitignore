@@ -29,6 +29,3 @@ local.properties
 # Processed intermediate data
 backend/processed_catalog.json
 
-# iOS
-ios/VolunteerHub/xcuserdata/
-ios/VolunteerHub/DerivedData/
