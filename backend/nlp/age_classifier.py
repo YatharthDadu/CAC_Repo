@@ -28,8 +28,10 @@ class AgeClassifier:
         positive_keywords = [
             "teen", "youth", "volunteen", "high school", "student", "grades 9", "grade 9",
             "grade 10", "grade 11", "grade 12", "all ages", "family", "park cleanup",
-            "food pack", "box", "sorting", "cleanup", "volunteer"
+            "food pack", "sorting", "cleanup"
         ]
+        # NOTE: the bare word "volunteer" is deliberately NOT a positive signal, it appears in every
+        # listing, including adult-only ones. Ambiguous text goes to the zero-shot model below.
         if any(w in lower for w in positive_keywords):
             return True
 

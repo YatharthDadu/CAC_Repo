@@ -1,3 +1,4 @@
+import asyncio
 from .targets import scrape_all_targets
 
 if __name__ == "__main__":

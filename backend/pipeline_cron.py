@@ -5,7 +5,6 @@ import uuid
 import random
 import string
 import json
-from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
 
 # Ensure backend directory is in python search path
@@ -15,6 +14,7 @@ from scraper.targets import scrape_all_targets
 from nlp.age_classifier import AgeClassifier
 from nlp.entity_extractor import EntityExtractor
 from embeddings.embedder import Embedder
+from nlp.enrich import estimate_duration_hours, platform_from_url, resolve_event_date
 
 # Load environment variables
 load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
@@ -75,9 +75,10 @@ async def run_pipeline():
         entities = entity_extractor.extract_entities(text)
         address = loc if loc and loc != "North Texas / Remote" else (entities["locations"][0] if entities.get("locations") else "Frisco, TX")
         
-        # Stagger event dates over upcoming weeks for a realistic dashboard calendar
-        future_date = datetime.now(timezone.utc) + timedelta(days=((i % 14) * 2 + 3))
-        event_date = future_date.isoformat()
+        # Real date if the source gave one; otherwise a placeholder that the app flags as approximate
+        event_date, is_estimated_date = resolve_event_date(event, f"{title}. {text}", i)
+        duration_hours = estimate_duration_hours(text)
+        source_platform = platform_from_url(url)
         
         # Context-rich embedding text for semantic similarity
         embed_context = f"Volunteer opportunity for high school students in {cat}. Title: {title}. Organization: {org}. Location: {address}. Description: {text}"
@@ -91,7 +92,13 @@ async def run_pipeline():
             "location": address,
             "event_date": event_date,
             "qr_seed": qr,
-            "description_embedding": embedding
+            "description_embedding": embedding,
+            "description": text,
+            "category": cat,
+            "source_url": url,
+            "source_platform": source_platform,
+            "duration_hours": duration_hours,
+            "is_estimated_date": is_estimated_date
         }
         processed_events.append(processed_event)
         
@@ -103,6 +110,9 @@ async def run_pipeline():
             "category": cat,
             "description": text,
             "source_url": url,
+            "source_platform": source_platform,
+            "duration_hours": duration_hours,
+            "is_estimated_date": is_estimated_date,
             "qr_seed": qr
         })
         

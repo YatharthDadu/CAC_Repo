@@ -1,476 +1,182 @@
 package com.example.volunteerhub.ui.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.volunteerhub.model.UserProfile
-import com.example.volunteerhub.model.VolunteerEvent
-import com.example.volunteerhub.ui.theme.*
+import com.example.volunteerhub.EventsState
+import com.example.volunteerhub.Route
+import com.example.volunteerhub.VolunteerViewModel
+import com.example.volunteerhub.data.EventFilter
+import com.example.volunteerhub.data.EventRanker
+import com.example.volunteerhub.data.SortMode
+import com.example.volunteerhub.model.Cause
+import com.example.volunteerhub.ui.components.ButtonStyle
+import com.example.volunteerhub.ui.components.ChunkyButton
+import com.example.volunteerhub.ui.components.EmptyState
+import com.example.volunteerhub.ui.components.ErrorState
+import com.example.volunteerhub.ui.components.EventCard
+import com.example.volunteerhub.ui.components.IconAction
+import com.example.volunteerhub.ui.components.SelectChip
+import com.example.volunteerhub.ui.components.ShimmerCard
+import com.example.volunteerhub.ui.components.StatusPill
+import com.example.volunteerhub.ui.components.style
+import com.example.volunteerhub.ui.theme.Hub
+import com.example.volunteerhub.ui.theme.Radius
+import com.example.volunteerhub.ui.theme.Spacing
 
 @Composable
-fun DiscoverScreen(
-    userProfile: UserProfile,
-    events: List<VolunteerEvent>,
-    rsvpdEventIds: Set<String>,
-    onSelectEvent: (VolunteerEvent) -> Unit,
-    onToggleRsvp: (VolunteerEvent) -> Unit
-) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    var selectedFilter by remember { mutableStateOf("All") }
-    val filters = listOf("All", "Top Matches", "STEM & Tech", "Healthcare", "Environment", "Community")
-
-    // Keyword sets for semantic major matching
-    val stemKeywords = remember {
-        listOf("stem", "tech", "computer", "code", "coding", "software", "robot", "robotics", "data", "ai", "3d print", "maker", "engineer", "python", "developer", "hardware", "wi-fi", "digital")
-    }
-    val preMedKeywords = remember {
-        listOf("medical", "hospital", "patient", "blood", "health", "clinic", "wellness", "comfort kit", "hospice", "care")
-    }
-    val ecoKeywords = remember {
-        listOf("park", "trail", "environment", "tree", "plant", "conservation", "nature", "wildflower", "prairie", "eco", "cleanup", "garden")
-    }
-    val eduKeywords = remember {
-        listOf("tutor", "reading", "literacy", "library", "school", "mentor", "teach", "homework", "book", "youth", "children")
-    }
-    val bizKeywords = remember {
-        listOf("business", "finance", "resale", "store", "inventory", "budget", "merchandising", "logistics", "operations")
-    }
-
-    // Dynamic AI match scoring based on the user's selected intended major
-    fun calculateScore(event: VolunteerEvent, major: String): Int {
-        val text = "${event.title} ${event.organizationName} ${event.description} ${event.category}".lowercase()
-        val eventHash = (event.title.hashCode() and 0x7FFFFFFF) % 4
-
-        val (primary, secondary) = when (major) {
-            "Computer Science & Tech" -> stemKeywords to (bizKeywords + eduKeywords)
-            "Engineering & Robotics" -> stemKeywords to (ecoKeywords + bizKeywords)
-            "Pre-Med / Healthcare" -> preMedKeywords to eduKeywords
-            "Environmental Science" -> ecoKeywords to eduKeywords
-            "Education & Literacy" -> eduKeywords to stemKeywords
-            "Business & Finance" -> bizKeywords to stemKeywords
-            else -> stemKeywords to emptyList()
-        }
-
-        val primaryHits = primary.count { text.contains(it) }
-        val secondaryHits = secondary.count { text.contains(it) }
-
-        return when {
-            primaryHits >= 2 -> 96 + eventHash // 96% - 99%
-            primaryHits == 1 -> 91 + eventHash // 91% - 94%
-            secondaryHits >= 1 -> 81 + eventHash // 81% - 84%
-            text.contains("food") || text.contains("meal") || text.contains("community") -> 74 + eventHash
-            else -> 38 + (eventHash * 3) // 38% - 47%
-        }
-    }
-
-    // Determine category display tag
-    fun getCategoryTag(event: VolunteerEvent): String {
-        val text = "${event.title} ${event.organizationName} ${event.description} ${event.category}".lowercase()
-        return when {
-            stemKeywords.any { text.contains(it) } -> "💻 STEM & Tech"
-            preMedKeywords.any { text.contains(it) } -> "🏥 Healthcare"
-            ecoKeywords.any { text.contains(it) } -> "🌱 Environmental"
-            eduKeywords.any { text.contains(it) } -> "📚 Education"
-            bizKeywords.any { text.contains(it) } -> "📈 Business & Data"
-            else -> "🤝 Community Service"
-        }
-    }
-
-    // 1. Re-score and sort by student's intended major descending
-    val scoredEvents = remember(events, userProfile.intendedMajor) {
-        events.map { event ->
-            val score = calculateScore(event, userProfile.intendedMajor)
-            event.copy(similarity = score / 100.0)
-        }.sortedByDescending { it.similarity ?: 0.0 }
-    }
-
-    // 2. Filter by active chip
-    val displayedEvents = remember(scoredEvents, selectedFilter) {
-        when (selectedFilter) {
-            "Top Matches" -> scoredEvents.filter { (it.similarity ?: 0.0) >= 0.85 }
-            "STEM & Tech" -> scoredEvents.filter { event ->
-                val text = "${event.title} ${event.organizationName} ${event.description} ${event.category}".lowercase()
-                stemKeywords.any { text.contains(it) }
-            }
-            "Healthcare" -> scoredEvents.filter { event ->
-                val text = "${event.title} ${event.organizationName} ${event.description} ${event.category}".lowercase()
-                preMedKeywords.any { text.contains(it) }
-            }
-            "Environment" -> scoredEvents.filter { event ->
-                val text = "${event.title} ${event.organizationName} ${event.description} ${event.category}".lowercase()
-                ecoKeywords.any { text.contains(it) }
-            }
-            "Community" -> scoredEvents.filter { event ->
-                val text = "${event.title} ${event.organizationName} ${event.description} ${event.category}".lowercase()
-                text.contains("food") || text.contains("meal") || text.contains("community") || text.contains("pack")
-            }
-            else -> scoredEvents
-        }
-    }
+fun DiscoverScreen(vm: VolunteerViewModel) {
+    val h = Hub.colors
+    val filter = vm.filter
+    val state = vm.eventsState
+    val results = vm.visibleEvents
 
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        Modifier.fillMaxSize().statusBarsPadding(),
+        contentPadding = PaddingValues(Spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(Spacing.lg)
     ) {
         item {
-            Column {
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                Text("Find your next shift", style = MaterialTheme.typography.headlineMedium, color = h.ink)
                 Text(
-                    text = "Discover Service",
-                    fontSize = 28.sp,
-                    fontFamily = InterFontFamily,
-                    fontWeight = FontWeight.Bold,
-                    color = Y2KTextDeep
+                    when (state) {
+                        is EventsState.Ready -> "${results.size} opportunities near you"
+                        else -> "Everything local, in one place."
+                    },
+                    style = MaterialTheme.typography.bodyMedium, color = h.inkSoft
                 )
-                Text(
-                    text = "AI-ranked opportunities matched across Idealist & North Texas partners.",
-                    fontSize = 14.sp,
-                    fontFamily = InterFontFamily,
-                    color = Y2KTextSecondary
+            }
+        }
+
+        item {
+            OutlinedTextField(
+                value = filter.query,
+                onValueChange = { vm.updateFilter(filter.copy(query = it)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                placeholder = { Text("Search by cause, place or organization") },
+                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                trailingIcon = {
+                    if (filter.query.isNotEmpty()) {
+                        IconAction(Icons.Filled.Clear, "Clear search", { vm.updateFilter(filter.copy(query = "")) })
+                    }
+                },
+                shape = RoundedCornerShape(Radius.button),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = h.line,
+                    focusedContainerColor = h.card,
+                    unfocusedContainerColor = h.card,
+                    focusedTextColor = h.ink,
+                    unfocusedTextColor = h.ink,
+                    focusedPlaceholderColor = h.inkSoft,
+                    unfocusedPlaceholderColor = h.inkSoft,
+                    focusedLeadingIconColor = h.inkSoft,
+                    unfocusedLeadingIconColor = h.inkSoft
                 )
+            )
+        }
 
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Major Priority Badge
-                Surface(
-                    shape = RoundedCornerShape(14.dp),
-                    color = PastelLavenderLight,
-                    border = androidx.compose.foundation.BorderStroke(1.dp, PastelLavenderDeep.copy(alpha = 0.6f)),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("🎯", fontSize = 22.sp)
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column {
-                            Text(
-                                text = "Prioritizing: ${userProfile.intendedMajor}",
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = InterFontFamily,
-                                fontSize = 14.sp,
-                                color = DeepRoyalViolet
-                            )
-                            Text(
-                                text = "Top ${userProfile.intendedMajor} recommendations boosted to top",
-                                fontSize = 11.sp,
-                                fontFamily = InterFontFamily,
-                                color = Y2KTextSecondary
-                            )
-                        }
-                    }
+        item {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                item {
+                    SelectChip("All causes", filter.cause == null, { vm.updateFilter(filter.copy(cause = null)) })
                 }
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                // Horizontal scrollable filter chips
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    filters.take(4).forEach { filter ->
-                        val isSelected = selectedFilter == filter
-                        Surface(
-                            onClick = { selectedFilter = filter },
-                            shape = RoundedCornerShape(14.dp),
-                            color = if (isSelected) PastelLavender else Color.White,
-                            border = androidx.compose.foundation.BorderStroke(
-                                if (isSelected) 1.5.dp else 1.dp,
-                                if (isSelected) VibrantPeriwinkle else Y2KBorderSoft
-                            ),
-                            shadowElevation = if (isSelected) 2.dp else 0.dp
-                        ) {
-                            Text(
-                                text = filter,
-                                fontSize = 12.sp,
-                                fontFamily = InterFontFamily,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                color = if (isSelected) DeepRoyalViolet else Y2KTextSecondary,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-                            )
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(6.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    filters.drop(4).forEach { filter ->
-                        val isSelected = selectedFilter == filter
-                        Surface(
-                            onClick = { selectedFilter = filter },
-                            shape = RoundedCornerShape(14.dp),
-                            color = if (isSelected) PastelLavender else Color.White,
-                            border = androidx.compose.foundation.BorderStroke(
-                                if (isSelected) 1.5.dp else 1.dp,
-                                if (isSelected) VibrantPeriwinkle else Y2KBorderSoft
-                            ),
-                            shadowElevation = if (isSelected) 2.dp else 0.dp
-                        ) {
-                            Text(
-                                text = filter,
-                                fontSize = 12.sp,
-                                fontFamily = InterFontFamily,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                color = if (isSelected) DeepRoyalViolet else Y2KTextSecondary,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-                            )
-                        }
-                    }
+                items(Cause.values().toList()) { cause ->
+                    val s = cause.style()
+                    SelectChip(
+                        label = cause.label, selected = filter.cause == cause,
+                        onClick = { vm.updateFilter(filter.copy(cause = if (filter.cause == cause) null else cause)) },
+                        icon = s.icon, accent = s.color, accentSoft = s.soft
+                    )
                 }
             }
         }
 
-        if (displayedEvents.isEmpty()) {
-            item {
-                Card(
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = PastelLavenderLight.copy(alpha = 0.5f)),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 24.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("🔍", fontSize = 36.sp)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            "No events found for '$selectedFilter'",
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = InterFontFamily,
-                            fontSize = 16.sp,
-                            color = Y2KTextDeep
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            "Try choosing 'All' or another category to view active North Texas volunteer sessions.",
-                            fontSize = 13.sp,
-                            fontFamily = InterFontFamily,
-                            color = Y2KTextSecondary
+        item {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                items(SortMode.values().toList()) { mode ->
+                    SelectChip(mode.label, filter.sort == mode, { vm.updateFilter(filter.copy(sort = mode)) })
+                }
+                item {
+                    SelectChip("This week", filter.thisWeekOnly, { vm.updateFilter(filter.copy(thisWeekOnly = !filter.thisWeekOnly)) })
+                }
+                item {
+                    SelectChip(
+                        "Under 3 hrs", filter.maxHours == 3.0,
+                        { vm.updateFilter(filter.copy(maxHours = if (filter.maxHours == 3.0) null else 3.0)) }
+                    )
+                }
+            }
+        }
+
+        when (state) {
+            is EventsState.Loading -> items(3) { ShimmerCard() }
+
+            is EventsState.Error -> item {
+                ErrorState(
+                    message = state.message,
+                    onRetry = { vm.refresh() },
+                    secondaryLabel = "Explore with sample events",
+                    onSecondary = { vm.useSampleEvents() }
+                )
+            }
+
+            is EventsState.Ready -> {
+                if (state.isSample) {
+                    item {
+                        StatusPill(
+                            "Sample events — not real opportunities", Icons.Filled.Info,
+                            h.infoSoft, h.infoDeep
                         )
                     }
                 }
-            }
-        } else {
-            items(displayedEvents) { event ->
-                val isRsvpd = rsvpdEventIds.contains(event.id)
-                val score = ((event.similarity ?: 0.5) * 100).toInt()
-                val categoryTag = getCategoryTag(event)
-
-                Card(
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                    border = androidx.compose.foundation.BorderStroke(
-                        1.dp,
-                        if (isRsvpd) PastelMint else PastelLavenderDeep.copy(alpha = 0.4f)
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(18.dp)) {
-                        // Top Match score & Distance
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = when {
-                                    score >= 90 -> PastelButtercup
-                                    score >= 75 -> PastelSkyBlue
-                                    else -> Color(0xFFF1F5F9)
-                                },
-                                border = androidx.compose.foundation.BorderStroke(
-                                    1.dp,
-                                    when {
-                                        score >= 90 -> VibrantButtercup.copy(alpha = 0.5f)
-                                        score >= 75 -> VibrantSkyBlue.copy(alpha = 0.5f)
-                                        else -> Y2KBorderSoft
-                                    }
-                                )
-                            ) {
-                                Text(
-                                    text = "🔥 $score% Match",
-                                    color = when {
-                                        score >= 90 -> Color(0xFFB45309)
-                                        score >= 75 -> DeepSkyBlue
-                                        else -> Y2KTextMuted
-                                    },
-                                    fontWeight = FontWeight.Bold,
-                                    fontFamily = InterFontFamily,
-                                    fontSize = 12.sp,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                )
-                            }
-
-                            Text(
-                                text = "📍 ${event.location}",
-                                fontSize = 12.sp,
-                                fontFamily = InterFontFamily,
-                                color = Y2KTextMuted
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        Text(
-                            text = event.title,
-                            fontSize = 18.sp,
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.Bold,
-                            color = Y2KTextDeep
+                if (results.isEmpty()) {
+                    item {
+                        EmptyState(
+                            icon = Icons.Filled.Explore,
+                            title = "No shifts match",
+                            body = "Try a different search or clear your filters.",
+                            actionLabel = if (filter != EventFilter()) "Clear filters" else null,
+                            onAction = { vm.updateFilter(EventFilter()) }
                         )
-
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = event.organizationName,
-                                fontSize = 14.sp,
-                                fontFamily = InterFontFamily,
-                                color = VibrantPeriwinkle,
-                                fontWeight = FontWeight.SemiBold
-                            )
-
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                if (isRsvpd) {
-                                    Surface(
-                                        shape = RoundedCornerShape(6.dp),
-                                        color = PastelMint,
-                                        border = androidx.compose.foundation.BorderStroke(1.dp, VibrantMint.copy(alpha = 0.4f))
-                                    ) {
-                                        Text(
-                                            text = "✓ NHS +4h",
-                                            fontSize = 11.sp,
-                                            fontFamily = InterFontFamily,
-                                            fontWeight = FontWeight.Bold,
-                                            color = DeepEmerald,
-                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                        )
-                                    }
-                                }
-
-                                Surface(
-                                    shape = RoundedCornerShape(6.dp),
-                                    color = PastelLavenderLight,
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, PastelLavenderDeep.copy(alpha = 0.4f))
-                                ) {
-                                    Text(
-                                        text = categoryTag,
-                                        fontSize = 11.sp,
-                                        fontFamily = InterFontFamily,
-                                        fontWeight = FontWeight.Medium,
-                                        color = DeepRoyalViolet,
-                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            text = event.description.ifEmpty { "Verified volunteer session supporting North Texas community initiatives." },
-                            fontSize = 13.sp,
-                            fontFamily = InterFontFamily,
-                            color = Y2KTextSecondary,
-                            maxLines = 3
+                    }
+                } else {
+                    items(results, key = { it.id }) { event ->
+                        EventCard(
+                            event = event,
+                            isPlanned = event.id in vm.plannedIds,
+                            isSaved = event.id in vm.savedIds,
+                            isTopPick = EventRanker.isMatch(event, vm.profile.interests),
+                            onOpen = { vm.push(Route.Detail(event.id)) },
+                            onTogglePlan = { vm.togglePlan(event) },
+                            onToggleSaved = { vm.toggleSaved(event.id) }
                         )
-
-                        Spacer(modifier = Modifier.height(14.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "🗓️ ${event.eventDate}",
-                                fontSize = 12.sp,
-                                fontFamily = InterFontFamily,
-                                color = Y2KTextMuted
-                            )
-
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                OutlinedButton(
-                                    onClick = { onSelectEvent(event) },
-                                    shape = RoundedCornerShape(12.dp),
-                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-                                ) {
-                                    Text("Details", fontSize = 13.sp, fontFamily = InterFontFamily, maxLines = 1)
-                                }
-
-                                if (isRsvpd) {
-                                    Surface(
-                                        onClick = {
-                                            onToggleRsvp(event)
-                                            android.widget.Toast.makeText(context, "RSVP removed. National Honor Society hours updated.", android.widget.Toast.LENGTH_SHORT).show()
-                                        },
-                                        shape = RoundedCornerShape(12.dp),
-                                        color = PastelMint,
-                                        border = androidx.compose.foundation.BorderStroke(1.dp, VibrantMint.copy(alpha = 0.5f))
-                                    ) {
-                                        Text(
-                                            text = "✓ RSVP'd",
-                                            color = DeepEmerald,
-                                            fontWeight = FontWeight.Bold,
-                                            fontFamily = InterFontFamily,
-                                            fontSize = 13.sp,
-                                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
-                                        )
-                                    }
-                                } else {
-                                    Surface(
-                                        onClick = {
-                                            onToggleRsvp(event)
-                                            android.widget.Toast.makeText(context, "✓ RSVP Confirmed! +4.0 hrs added to National Honor Society.", android.widget.Toast.LENGTH_SHORT).show()
-                                        },
-                                        shape = RoundedCornerShape(12.dp),
-                                        shadowElevation = 3.dp
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .background(Y2KButtonGradient)
-                                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                                        ) {
-                                            Text(
-                                                text = "RSVP",
-                                                color = Color.White,
-                                                fontWeight = FontWeight.Bold,
-                                                fontFamily = InterFontFamily,
-                                                fontSize = 13.sp
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
             }
