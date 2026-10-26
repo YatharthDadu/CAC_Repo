@@ -41,6 +41,7 @@ import com.example.volunteerhub.ui.screens.PlanScreen
 import com.example.volunteerhub.ui.screens.ProfileScreen
 import com.example.volunteerhub.ui.screens.SignatureScreen
 import com.example.volunteerhub.ui.screens.TranscriptScreen
+import com.example.volunteerhub.ui.screens.XelloScreen
 import com.example.volunteerhub.ui.theme.Hub
 import com.example.volunteerhub.ui.theme.VolunteerHubTheme
 
@@ -122,10 +123,19 @@ fun VolunteerHubApp(vm: VolunteerViewModel) {
                     Route.CheckIn -> CheckInScreen(vm)
                     Route.Signature -> SignatureScreen(vm)
                     Route.Transcript -> TranscriptScreen(vm)
+                    is Route.Xello -> XelloScreen(vm, target.eventId)
                 }
             }
         }
     }
 
-    vm.celebration?.let { CelebrationOverlay(it, onDismiss = { vm.dismissCelebration() }) }
+    vm.celebration?.let { celebration ->
+        CelebrationOverlay(
+            c = celebration,
+            onDismiss = { vm.dismissCelebration() },
+            onPrepareXello = { eventId ->
+                vm.push(Route.Xello(eventId))
+            }
+        )
+    }
 }

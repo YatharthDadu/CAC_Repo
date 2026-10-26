@@ -151,6 +151,7 @@ fun SignatureScreen(vm: VolunteerViewModel) {
     val event = vm.activeShift?.let { vm.eventById(it.eventId) }
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var role by remember { mutableStateOf("Site Coordinator") }
     var strokes by remember { mutableStateOf(listOf<List<Offset>>()) }
     var current by remember { mutableStateOf(listOf<Offset>()) }
     var triedSubmit by remember { mutableStateOf(false) }
@@ -178,6 +179,7 @@ fun SignatureScreen(vm: VolunteerViewModel) {
             )
             SignField("Supervisor name", name, { name = it }, triedSubmit && !nameOk, "Enter the supervisor's name", KeyboardType.Text)
             SignField("Supervisor email", email, { email = it }, triedSubmit && !emailOk, "Enter a valid email", KeyboardType.Email)
+            SignField("Supervisor role / title", role, { role = it }, false, "", KeyboardType.Text)
 
             Text("Signature", style = MaterialTheme.typography.titleSmall, color = h.ink)
             val shape = RoundedCornerShape(Radius.card)
@@ -231,7 +233,13 @@ fun SignatureScreen(vm: VolunteerViewModel) {
                 "Verify ${event.durationHours.hoursLabel()} hours",
                 onClick = {
                     triedSubmit = true
-                    if (nameOk && emailOk && signed) vm.verifyShift(name, email)
+                    if (nameOk && emailOk && signed) {
+                        val sigSvg = strokes.joinToString(" ") { stroke ->
+                            if (stroke.isEmpty()) ""
+                            else "M ${stroke.first().x.toInt()} ${stroke.first().y.toInt()} " + stroke.drop(1).joinToString(" ") { "L ${it.x.toInt()} ${it.y.toInt()}" }
+                        }
+                        vm.verifyShift(name, email, role, sigSvg)
+                    }
                 },
                 modifier = Modifier.fillMaxWidth(), style = ButtonStyle.Success, icon = Icons.Filled.Verified
             )

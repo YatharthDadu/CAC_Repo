@@ -29,3 +29,11 @@ local.properties
 # Processed intermediate data
 backend/processed_catalog.json
 
+
+# Local video recordings and IDE metadata
+*.mp4
+*.MP4
+*.jpg
+android/.idea/
+ios/
+

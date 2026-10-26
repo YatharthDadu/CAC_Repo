@@ -1,5 +1,8 @@
 package com.example.volunteerhub.ui.screens
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -53,6 +56,7 @@ fun DiscoverScreen(vm: VolunteerViewModel) {
     val filter = vm.filter
     val state = vm.eventsState
     val results = vm.visibleEvents
+    val context = LocalContext.current
 
     LazyColumn(
         Modifier.fillMaxSize().statusBarsPadding(),
@@ -174,7 +178,18 @@ fun DiscoverScreen(vm: VolunteerViewModel) {
                             isSaved = event.id in vm.savedIds,
                             isTopPick = EventRanker.isMatch(event, vm.profile.interests),
                             onOpen = { vm.push(Route.Detail(event.id)) },
-                            onTogglePlan = { vm.togglePlan(event) },
+                            onTogglePlan = {
+                                val willPlan = event.id !in vm.plannedIds
+                                vm.togglePlan(event)
+                                if (willPlan) {
+                                    try {
+                                        context.startActivity(
+                                            Intent(Intent.ACTION_VIEW, Uri.parse(event.signupUrl))
+                                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                        )
+                                    } catch (_: Exception) {}
+                                }
+                            },
                             onToggleSaved = { vm.toggleSaved(event.id) }
                         )
                     }

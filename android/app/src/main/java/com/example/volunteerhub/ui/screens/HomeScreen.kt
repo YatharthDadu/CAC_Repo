@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.MaterialTheme
@@ -178,6 +179,31 @@ fun HomeScreen(vm: VolunteerViewModel) {
         item { BadgeShelf(progress.badges) }
 
         if (vm.shifts.isNotEmpty()) {
+            val latestShift = vm.shifts.maxByOrNull { it.verifiedAtMillis }
+            if (latestShift != null) {
+                item { SectionTitle("Recent verification") }
+                item {
+                    ChunkyCard(
+                        face = h.card,
+                        onClick = { vm.push(Route.Xello(latestShift.eventId)) }
+                    ) {
+                        Column(Modifier.padding(Spacing.lg), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                StatusPill("VERIFIED ✓", Icons.Filled.CheckCircle, h.successSoft, h.successDeep)
+                                Text("${latestShift.hours.hoursLabel()} hrs", style = MaterialTheme.typography.titleMedium, color = h.successDeep)
+                            }
+                            Text(latestShift.title, style = MaterialTheme.typography.titleSmall, color = h.ink, maxLines = 1)
+                            Text("${latestShift.organizationName} · Signed by ${latestShift.supervisorName}", style = MaterialTheme.typography.bodySmall, color = h.inkSoft)
+                            ChunkyButton(
+                                "Export / Xello 📋",
+                                onClick = { vm.push(Route.Xello(latestShift.eventId)) },
+                                modifier = Modifier.fillMaxWidth().padding(top = Spacing.xs),
+                                style = ButtonStyle.Quiet
+                            )
+                        }
+                    }
+                }
+            }
             item {
                 ChunkyButton(
                     "View my service transcript", onClick = { vm.push(Route.Transcript) },

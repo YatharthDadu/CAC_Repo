@@ -16,12 +16,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
@@ -191,11 +193,11 @@ fun EventCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ChunkyButton(
-                    text = if (isPlanned) "In my plan" else "I'm in",
+                    text = if (isPlanned) "In my plan" else "I'm in — sign up",
                     onClick = onTogglePlan,
                     modifier = Modifier.weight(1f),
                     style = if (isPlanned) ButtonStyle.Success else ButtonStyle.Primary,
-                    icon = if (isPlanned) Icons.Filled.Check else null
+                    icon = if (isPlanned) Icons.Filled.Check else Icons.AutoMirrored.Filled.OpenInNew
                 )
                 IconAction(
                     icon = if (isSaved) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder,

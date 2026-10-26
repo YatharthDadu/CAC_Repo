@@ -57,6 +57,53 @@ data class VolunteerEvent(
     val qrSeed: String = ""
 ) {
     val cause: Cause get() = Cause.from(category, "$title $description")
+
+    val signupUrl: String
+        get() {
+            if (sourceUrl.isNotBlank()) return sourceUrl
+            val org = organizationName.lowercase()
+            return when {
+                org.contains("food bank") || org.contains("ntfb") -> "https://ntfb.org/get-involved/volunteer/"
+                org.contains("fastpacs") -> "https://www.friscofastpacs.org/volunteer-opportunities"
+                org.contains("frisco public library") || (org.contains("library") && org.contains("frisco")) -> "https://friscolibrary.com/volunteen/"
+                org.contains("sci-tech") -> "https://mindstretchingfun.org/volunteer/"
+                org.contains("mckinney parks") -> "https://www.mckinneyparksfoundation.org/volunteer/"
+                org.contains("medical city") -> "https://medicalcityhealthcare.com/about/volunteering/"
+                org.contains("carter bloodcare") -> "https://www.carterbloodcare.org/volunteer/"
+                org.contains("texas health") -> "https://www.texashealth.org/Volunteer"
+                org.contains("red cross") -> "https://www.redcross.org/volunteer/become-a-volunteer.html"
+                org.contains("step up tutoring") -> "https://www.stepuptutoring.org/volunteer"
+                org.contains("stem for others") -> "https://www.idealist.org/en/volunteer-opportunity/96097bcf011542ef8b33fbe0d4088155-stem-mentors-needed-in-frisco-tx-area-stem-for-others-inc-frisco"
+                org.contains("ronnia langston") -> "https://www.idealist.org/en/volunteer-opportunity/fb07f559c61e4b3da59dc9e63478e1b3-software-engineers-needed-summer-2027-stem-program-ronnia-langston-foundation-incorporated-plano"
+                org.contains("grandparents community") -> "https://www.idealist.org/en/volunteer-opportunity/d61518b18fc24bf5b6018b292aa457b4-data-technology-ai-prompter-evaluator-grandparents-community-network-inc-frisco"
+                org.contains("coderdojo") -> "https://coderdojo.com/"
+                org.contains("boys & girls") || org.contains("bgccc") -> "https://bgccc.org/volunteer/"
+                org.contains("frisco family services") -> "https://friscofamilyservices.org/volunteer/"
+                org.contains("junior achievement") -> "https://dallas.ja.org/"
+                org.contains("frisco garden club") -> "https://friscogardenclub.org/"
+                org.contains("allen senior") -> "https://www.cityofallen.org/facilities/facility/details/Senior-Center-8"
+                org.contains("ronald mcdonald") -> "https://rmhdallas.org/get-involved/volunteer/"
+                org.contains("dallas pets alive") -> "https://dallaspetsalive.org/volunteer/"
+                org.contains("reading partners") -> "https://readingpartners.org/volunteer/"
+                org.contains("readers 2 leaders") -> "https://www.readers2leaders.org/volunteer"
+                org.contains("upchieve") -> "https://upchieve.org/volunteer"
+                org.contains("united way") -> "https://www.unitedwaytarrant.org/volunteer"
+                org.contains("catholic charities") -> "https://catholiccharitiesfortworth.org/volunteer/"
+                org.contains("sewa international") -> "https://www.sewausa.org/Volunteer"
+                org.contains("coachart") -> "https://coachart.org/volunteer/"
+                org.contains("cedar ridge") -> "https://audubondallas.org/cedar-ridge-preserve/"
+                org.contains("disaster resource") || org.contains("itdrc") -> "https://www.itdrc.org/volunteer"
+                org.contains("rescue animals") -> "https://www.volunteermatch.org/"
+                org.contains("be kingdom builders") -> "https://www.volunteermatch.org/"
+                org.contains("oneinmath") -> "https://www.oneinmath.com/volunteer/"
+                org.contains("project sunshine") -> "https://projectsunshine.org/volunteer/"
+                org.contains("amedisys hospice") -> "https://www.amedisys.com/services/hospice-care/volunteers/"
+                org.contains("silverado hospice") -> "https://silverado.com/volunteer/"
+                org.contains("plano conservancy") -> "https://www.planoconservancy.org/"
+                org.isNotBlank() -> "https://www.volunteermatch.org/search?l=Plano%2C+TX&k=" + java.net.URLEncoder.encode(organizationName, "UTF-8")
+                else -> "https://www.volunteermatch.org/"
+            }
+        }
 }
 
 data class UserProfile(
@@ -83,7 +130,9 @@ data class ShiftRecord(
     val hours: Double,
     val supervisorName: String,
     val supervisorEmail: String,
-    val verifiedAtMillis: Long
+    val verifiedAtMillis: Long,
+    val supervisorRole: String = "Site Coordinator",
+    val signatureSvg: String = ""
 )
 
 /** The shift currently in progress, if any. */

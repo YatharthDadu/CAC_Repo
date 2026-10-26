@@ -33,6 +33,7 @@ sealed class Route {
     object CheckIn : Route()
     object Signature : Route()
     object Transcript : Route()
+    data class Xello(val eventId: String) : Route()
 
     val isTab: Boolean get() = this is Home || this is Discover || this is Plan || this is Profile
 }
@@ -44,7 +45,7 @@ sealed interface EventsState {
 }
 
 /** What the celebration overlay shows after a shift is signed off. */
-data class Celebration(val hours: Double, val title: String, val newBadges: List<Badge>, val goalReached: Boolean)
+data class Celebration(val hours: Double, val title: String, val newBadges: List<Badge>, val goalReached: Boolean, val eventId: String = "")
 
 class VolunteerViewModel(app: Application) : AndroidViewModel(app) {
     private val store = AppStore(app)
@@ -162,7 +163,12 @@ class VolunteerViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /** Called when the supervisor signs. Hours are only credited here, never on sign-up. */
-    fun verifyShift(supervisorName: String, supervisorEmail: String) {
+    fun verifyShift(
+        supervisorName: String,
+        supervisorEmail: String,
+        supervisorRole: String = "Site Coordinator",
+        signatureSvg: String = ""
+    ) {
         val shift = activeShift ?: return
         val event = eventById(shift.eventId) ?: return
         val before = progress.badges
@@ -170,7 +176,9 @@ class VolunteerViewModel(app: Application) : AndroidViewModel(app) {
             eventId = event.id, title = event.title, organizationName = event.organizationName,
             cause = event.cause, eventDate = event.eventDate, hours = event.durationHours,
             supervisorName = supervisorName.trim(), supervisorEmail = supervisorEmail.trim(),
-            verifiedAtMillis = System.currentTimeMillis()
+            verifiedAtMillis = System.currentTimeMillis(),
+            supervisorRole = supervisorRole.trim().ifBlank { "Site Coordinator" },
+            signatureSvg = signatureSvg
         )
         shifts = shifts + record
         store.saveShifts(shifts)
@@ -178,7 +186,8 @@ class VolunteerViewModel(app: Application) : AndroidViewModel(app) {
         val after = progress
         celebration = Celebration(
             hours = record.hours, title = event.title,
-            newBadges = (after.badges - before).toList(), goalReached = after.goalReached
+            newBadges = (after.badges - before).toList(), goalReached = after.goalReached,
+            eventId = event.id
         )
         backStack.clear(); backStack.add(Route.Home)
     }

@@ -68,14 +68,18 @@ class AppStore(context: Context) {
             cause = Cause.values().firstOrNull { it.name == o.optString("cause") } ?: Cause.COMMUNITY,
             eventDate = o.optString("date"), hours = o.optDouble("hours", 0.0),
             supervisorName = o.optString("sup"), supervisorEmail = o.optString("email"),
-            verifiedAtMillis = o.optLong("at", 0L)
+            verifiedAtMillis = o.optLong("at", 0L),
+            supervisorRole = o.optString("role", "Site Coordinator"),
+            signatureSvg = o.optString("sig", "")
         )
     }
 
     fun saveShifts(shifts: List<ShiftRecord>) = writeArray("shifts", shifts) { s ->
         JSONObject().put("id", s.eventId).put("title", s.title).put("org", s.organizationName)
             .put("cause", s.cause.name).put("date", s.eventDate).put("hours", s.hours)
-            .put("sup", s.supervisorName).put("email", s.supervisorEmail).put("at", s.verifiedAtMillis)
+            .put("sup", s.supervisorName).put("email", s.supervisorEmail)
+            .put("role", s.supervisorRole).put("sig", s.signatureSvg)
+            .put("at", s.verifiedAtMillis)
     }
 
     fun loadActiveShift(): ActiveShift? {

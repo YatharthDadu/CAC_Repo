@@ -30,6 +30,11 @@ import com.example.volunteerhub.ui.components.hoursLabel
 import com.example.volunteerhub.ui.theme.Hub
 import com.example.volunteerhub.ui.theme.Spacing
 
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import com.example.volunteerhub.Route
+import com.example.volunteerhub.data.PdfGenerator
+
 @Composable
 fun TranscriptScreen(vm: VolunteerViewModel) {
     val h = Hub.colors
@@ -69,6 +74,16 @@ fun TranscriptScreen(vm: VolunteerViewModel) {
                         }
                         Text("${s.organizationName} · ${Dates.pretty(s.eventDate)}", style = MaterialTheme.typography.bodySmall, color = h.inkSoft)
                         Text("Signed by ${s.supervisorName} (${s.supervisorEmail})", style = MaterialTheme.typography.bodySmall, color = h.inkSoft)
+                        Row(
+                            Modifier.fillMaxWidth().padding(top = Spacing.xs),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            ChunkyButton(
+                                "Xello / AI Summary 📋",
+                                onClick = { vm.push(Route.Xello(s.eventId)) },
+                                style = ButtonStyle.Quiet
+                            )
+                        }
                     }
                 }
             }
@@ -77,9 +92,20 @@ fun TranscriptScreen(vm: VolunteerViewModel) {
                 style = MaterialTheme.typography.bodySmall, color = h.inkSoft
             )
         }
-        Column(Modifier.padding(Spacing.lg).navigationBarsPadding()) {
+        Column(Modifier.padding(Spacing.lg).navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
             ChunkyButton(
-                "Share transcript", icon = Icons.Filled.Share, style = ButtonStyle.Primary,
+                "📄 Generate Verified Resume (PDF)",
+                icon = Icons.Filled.Description,
+                style = ButtonStyle.Reward,
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    PdfGenerator.shareTranscriptPdf(context, vm.profile, shifts)
+                }
+            )
+            ChunkyButton(
+                "Share plain text",
+                icon = Icons.Filled.Share,
+                style = ButtonStyle.Quiet,
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     val text = buildString {

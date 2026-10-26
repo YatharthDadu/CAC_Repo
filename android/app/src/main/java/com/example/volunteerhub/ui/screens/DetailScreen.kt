@@ -24,7 +24,7 @@ import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Event
-import androidx.compose.material.icons.filled.OpenInNew
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Schedule
@@ -128,21 +128,31 @@ fun DetailScreen(vm: VolunteerViewModel, eventId: String) {
             Modifier.fillMaxWidth().background(h.card).padding(Spacing.lg).navigationBarsPadding(),
             verticalArrangement = Arrangement.spacedBy(Spacing.sm)
         ) {
-            if (event.sourceUrl.isNotBlank()) {
-                ChunkyButton(
-                    text = "Sign up on ${event.sourcePlatform.ifBlank { "the organizer's site" }}",
-                    onClick = { openUrl(context, event.sourceUrl) },
-                    modifier = Modifier.fillMaxWidth(), style = ButtonStyle.Quiet, icon = Icons.Filled.OpenInNew
-                )
-            }
+            val platformLabel = event.sourcePlatform.ifBlank { event.organizationName.ifBlank { "organizer site" } }
+            ChunkyButton(
+                text = "Sign up & reserve spot on $platformLabel",
+                onClick = {
+                    if (!planned) vm.togglePlan(event)
+                    openUrl(context, event.signupUrl)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                style = ButtonStyle.Primary,
+                icon = Icons.AutoMirrored.Filled.OpenInNew
+            )
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm), verticalAlignment = Alignment.CenterVertically) {
                 when {
-                    verified -> ChunkyButton("Verified", {}, Modifier.weight(1f), ButtonStyle.Success, Icons.Filled.Check, enabled = false)
+                    verified -> ChunkyButton("Export / Xello 📋", { vm.push(Route.Xello(event.id)) }, Modifier.weight(1f), ButtonStyle.Primary)
                     planned -> ChunkyButton(
-                        "Check in", { vm.startShift(event); vm.push(Route.CheckIn) },
+                        "Check in to shift", { vm.startShift(event); vm.push(Route.CheckIn) },
                         Modifier.weight(1f), ButtonStyle.Success, Icons.Filled.PlayArrow
                     )
-                    else -> ChunkyButton("I'm in — add to plan", { vm.togglePlan(event) }, Modifier.weight(1f))
+                    else -> ChunkyButton(
+                        "Add to my plan",
+                        { vm.togglePlan(event) },
+                        Modifier.weight(1f),
+                        style = ButtonStyle.Quiet,
+                        icon = Icons.Filled.Bookmark
+                    )
                 }
                 com.example.volunteerhub.ui.components.IconAction(
                     icon = if (saved) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder,
@@ -178,9 +188,12 @@ private fun Fact(icon: ImageVector, label: String, value: String) {
 }
 
 private fun openUrl(context: android.content.Context, url: String) {
+    android.util.Log.d("VolunteerHub", "openUrl called with: '$url'")
     try {
-        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        val uri = Uri.parse(url)
+        val intent = Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
     } catch (e: Exception) {
-        // No browser installed; nothing sensible to do.
+        android.util.Log.e("VolunteerHub", "openUrl failed", e)
     }
 }

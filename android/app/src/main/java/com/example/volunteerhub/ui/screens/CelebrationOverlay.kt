@@ -51,7 +51,11 @@ import com.example.volunteerhub.ui.theme.Violet
 private val confettiColors = listOf(Sun, Coral, Mint, Sky, Violet)
 
 @Composable
-fun CelebrationOverlay(c: Celebration, onDismiss: () -> Unit) {
+fun CelebrationOverlay(
+    c: Celebration,
+    onDismiss: () -> Unit,
+    onPrepareXello: (String) -> Unit = {}
+) {
     val h = Hub.colors
     val reduce = rememberReduceMotion()
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
@@ -80,7 +84,13 @@ fun CelebrationOverlay(c: Celebration, onDismiss: () -> Unit) {
                                 items(c.newBadges) { BadgeTile(it, earned = true) }
                             }
                         }
-                        ChunkyButton("Keep going", onDismiss, Modifier.fillMaxWidth(), ButtonStyle.Reward)
+                        if (c.eventId.isNotBlank()) {
+                            ChunkyButton("Prepare Xello Submission 📋", {
+                                onDismiss()
+                                onPrepareXello(c.eventId)
+                            }, Modifier.fillMaxWidth(), ButtonStyle.Primary)
+                        }
+                        ChunkyButton("Keep going", onDismiss, Modifier.fillMaxWidth(), ButtonStyle.Quiet)
                     }
                 }
             }

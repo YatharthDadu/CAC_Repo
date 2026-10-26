@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -6,7 +8,7 @@ plugins {
 // Supabase credentials come from android/local.properties (git-ignored) or environment variables:
 //   supabase.url=https://<project>.supabase.co
 //   supabase.anon.key=<anon public key>
-val localProps = java.util.Properties().apply {
+val localProps = Properties().apply {
     val f = rootProject.file("local.properties")
     if (f.exists()) f.inputStream().use { load(it) }
 }

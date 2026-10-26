@@ -68,42 +68,48 @@ object SupabaseRepository {
             id = "sample-stem", title = "STEM Mentors Needed in Frisco",
             organizationName = "STEM For Others", location = "Frisco, TX",
             eventDate = Dates.inDaysIso(2), timeLabel = "10:00 AM", durationHours = 3.0,
-            category = "Computer Science & Tech", sourcePlatform = "Sample",
+            category = "Computer Science & Tech", sourcePlatform = "Idealist",
+            sourceUrl = "https://www.idealist.org/en/volunteer-opportunity/96097bcf011542ef8b33fbe0d4088155-stem-mentors-needed-in-frisco-tx-area-stem-for-others-inc-frisco",
             description = "Help younger students with Python basics and robotics kits. No experience needed beyond curiosity."
         ),
         VolunteerEvent(
             id = "sample-maker", title = "Teen Maker Lab Helper",
             organizationName = "Frisco Public Library", location = "Frisco, TX",
             eventDate = Dates.inDaysIso(3), timeLabel = "2:00 PM", durationHours = 2.0,
-            category = "Computer Science & Tech", sourcePlatform = "Sample",
+            category = "Computer Science & Tech", sourcePlatform = "Frisco Library",
+            sourceUrl = "https://friscolibrary.com/volunteen/",
             description = "Set up 3D printers, guide kids through Scratch projects and keep the makerspace tidy."
         ),
         VolunteerEvent(
             id = "sample-comfort", title = "Patient Comfort Kit Assembly",
             organizationName = "Medical City Frisco", location = "Frisco, TX",
             eventDate = Dates.inDaysIso(5), timeLabel = "9:00 AM", durationHours = 4.0,
-            category = "Pre-Med / Healthcare", sourcePlatform = "Sample",
+            category = "Pre-Med / Healthcare", sourcePlatform = "Medical City",
+            sourceUrl = "https://medicalcityhealthcare.com/about/volunteering/",
             description = "Assemble hygiene and comfort kits for hospital patients alongside staff volunteers."
         ),
         VolunteerEvent(
             id = "sample-trail", title = "Trail Cleanup & Tree Planting",
             organizationName = "McKinney Parks Foundation", location = "McKinney, TX",
             eventDate = Dates.inDaysIso(9), timeLabel = "8:00 AM", durationHours = 3.5,
-            category = "Environmental Science", sourcePlatform = "Sample",
+            category = "Environmental Science", sourcePlatform = "McKinney Parks",
+            sourceUrl = "https://mckinneyparksfoundation.org/volunteer/",
             description = "Mulch paths and plant native saplings. Bring water and closed-toe shoes."
         ),
         VolunteerEvent(
             id = "sample-reading", title = "Reading Buddy for Grades K-3",
             organizationName = "Frisco Public Library", location = "Frisco, TX",
             eventDate = Dates.inDaysIso(6), timeLabel = "4:00 PM", durationHours = 1.5,
-            category = "Education & Literacy", sourcePlatform = "Sample",
+            category = "Education & Literacy", sourcePlatform = "Frisco Library",
+            sourceUrl = "https://friscolibrary.com/volunteen/",
             description = "Read aloud with elementary students and help them pick their next favorite book."
         ),
         VolunteerEvent(
             id = "sample-meals", title = "Community Meal Packing Night",
             organizationName = "Frisco Fastpacs", location = "Frisco, TX",
             eventDate = Dates.inDaysIso(12), timeLabel = "5:30 PM", durationHours = 2.0,
-            category = "Community & Civic", sourcePlatform = "Sample",
+            category = "Community & Civic", sourcePlatform = "Frisco Fastpacs",
+            sourceUrl = "https://friscofastpacs.org/volunteer/",
             description = "Pack nutritious weekend meal bags for local school children."
         )
     )
